@@ -16,6 +16,8 @@ TODO: xbee, ros, etc dependencies
 pip3 install XXX
 ```
 
+Or it's even better to add Docker for this.
+
 -----------------------
 
 
