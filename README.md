@@ -2,21 +2,55 @@
 
 We could setup a few dts commands to setup a device in Duckiepond. This is supposed to run on the laptop on the base station.
 
-```
-dts duckiepond
-```
+## Change to our forked repo
 
-TODO: submodule the repo with device.yaml
+```
+$ cd ~/.dt-shell/commands-multi/daffy/
+$ git remote -v
+$ git remote set-url origin git@github.com:ARG-NCTU/duckietown-shell-commands.git
+$ git pull
+$ dts duckiepond boat1
+```
 
 ## dependency
 
 TODO: xbee, ros, etc dependencies
 
-```
-pip3 install XXX
-```
+TODO: Or it's even better to add Docker for this. 
 
-Or it's even better to add Docker for this.
+TODO: We could also test our nbdev lib here.
+
+
+## Checking System
+
+TODO: submodule the repo with device.yaml
+
+### Hostname, username, ssh key, 
+
+### Setup network properly (IP, virtual IP, etc)
+
+### Make a Duckietown Device
+
+
+## Developments and Deployments
+
+### Clone repo and build 
+
+### Environment variables for who I am
+
+### Any robot-specific topic name 
+
+### Docker autorun (Turnkey)
+
+## Tests (arg-veh-machine-test repo)
+
+### dts fleet discover
+
+### Test XBee comm (TODO modify repo)
+
+### Test starting up sensors (procman)
+
+
 
 -----------------------
 
