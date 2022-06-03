@@ -1,6 +1,6 @@
 # dts duckiepond
 
-We could setup a few dts commands to setup a device in Duckiepond.
+We could setup a few dts commands to setup a device in Duckiepond. This is supposed to run on the laptop on the base station.
 
 ```
 dts duckiepond
@@ -8,11 +8,20 @@ dts duckiepond
 
 TODO: submodule the repo with device.yaml
 
+## dependency
+
+TODO: xbee, ros, etc dependencies
+
+```
+pip3 install XXX
+```
+
+-----------------------
 
 
 [![CircleCI](https://circleci.com/gh/duckietown/duckietown-shell-commands.svg?style=shield)](https://circleci.com/gh/duckietown/duckietown-shell-commands)
 
------------------------
+
 
 TODO: this should get polished and updated. 
 
