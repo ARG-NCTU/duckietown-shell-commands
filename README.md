@@ -1,3 +1,15 @@
+# dts duckiepond
+
+We could setup a few dts commands to setup a device in Duckiepond.
+
+```
+dts duckiepond
+```
+
+TODO: submodule the repo with device.yaml
+
+
+
 [![CircleCI](https://circleci.com/gh/duckietown/duckietown-shell-commands.svg?style=shield)](https://circleci.com/gh/duckietown/duckietown-shell-commands)
 
 -----------------------
