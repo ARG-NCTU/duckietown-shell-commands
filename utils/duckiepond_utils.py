@@ -46,23 +46,14 @@ def dp_get_devices(dp_yaml_path, pattern='boat*'):
 
     return boats
 
-def dp_get_xbee_tx_rx(dp_yaml_path, device):
-
-    dp_dict = dp_load_config(dp_yaml_path)
-
-    tx = ""
-    rx = ""
-    if re.match('boat*', device):
-        tx = dp_dict[device]['nano']['xbee_tx']
-        rx = dp_dict[device]['rip']['xbee_rx']
-
 def dp_print_boats(dp_yaml_path):
 
     header = [
         "['nano']['ip']", 
         "boat xbee_tx", 
         "boat xbee_rx", 
-        "anch xbee_tx", "States"]
+        "anch xbee_tx", 
+        "anch xbee_rx"]
 
     data = []
     dp_dict = dp_load_config(dp_yaml_path)
@@ -74,41 +65,20 @@ def dp_print_boats(dp_yaml_path):
 
     for boat in boats:
         anchor = dp_dict[boat]['xbee_pair'] 
+        anchor_tx = dp_dict[anchor]['rpi_1']['xbee_tx']
+        anchor_rx = ""
+        if 'rpi_2' in dp_dict[anchor]:
+            anchor_rx = dp_dict[anchor]['rpi_2']['xbee_rx']
+        elif 'tvl' in dp_dict[anchor]:
+            anchor_rx = 'tvl ' + dp_dict[anchor]['tvl']['ip']
+
         row = (
             [boat, 
              dp_dict[boat]['nano']['ip'], 
              dp_dict[boat]['nano']['xbee_tx'], 
              dp_dict[boat]['rpi']['xbee_rx'], 
-             dp_dict[anchor]['rpi_1']['xbee_tx'], 
-             "states"]
-        )
-        data.append(row)
-
-    print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
-
-def dp_print_anchors(dp_yaml_path):
-
-    header = [
-        "['rpi_1']['ip']", 
-        "['xbee_tx']", 
-        "['xbee_rx']", 
-        "Status", "States"]
-
-    data = []
-    dp_dict = dp_load_config(dp_yaml_path)
-
-    #print("load config {}".format(dp_yaml_path))
-
-    anchors = dp_get_devices(dp_yaml_path, 'anchor*')
-    #print("load anchors: {}".format(anchors))
-
-    for anchor in anchors:
-        row = (
-            [anchor, 
-             dp_dict[anchor]['rpi_1']['ip'], 
-             "",
-             "",
-             "status", 
+             anchor_tx,
+             anchor_rx,
              "states"]
         )
         data.append(row)

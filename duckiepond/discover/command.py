@@ -36,7 +36,6 @@ class xbee_listener:
 
         print("load config {}".format(self.dp_yaml_path))
         dp_print_boats(self.dp_yaml_path)
-        #dp_print_anchors(self.dp_yaml_path)
 
 
 
