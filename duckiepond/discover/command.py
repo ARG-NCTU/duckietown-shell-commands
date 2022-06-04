@@ -9,21 +9,37 @@ from typing import List, Set
 from dt_shell import DTCommandAbs, dtslogger
 from utils.duckietown_utils import get_robot_types
 from utils.table_utils import fill_cell, format_matrix
+from utils.duckiepond_utils import * 
 
 REFRESH_HZ = 1.0
 
 usage = """
-
 ## Basic usage
 
-    Discovers Duckietown robots in the local network.
+    Discovers Duckiepond robots in the xbee network.
 
-    To find out more, use `dts fleet discover -h`.
+    To find out more, use `dts duckiepond discover -h`.
 
-        $ dts fleet discover [options]
+        $ dts duckiepond discover [options]
 
 """
 
+class xbee_listener:
+
+    def __init__(self, args):
+        self.args = args
+        self.dp_yaml_path = find_duckiepond_devices_yaml()
+        self.boats = dp_get_devices(self.dp_yaml_path, 'boat*')
+        self.anchors = dp_get_devices(self.dp_yaml_path, 'anchor*')
+
+
+
+    def print(self):
+        # clear terminal
+        os.system("cls" if os.name == "nt" else "clear")
+        print("load config {}".format(self.dp_yaml_path))
+        print("load boats: {}".format(self.boats))
+        print("load anchors: {}".format(self.anchors))
 
 class DiscoverListener:
     services = defaultdict(dict)
@@ -162,11 +178,7 @@ class DTCommand(DTCommandAbs):
         parsed = parser.parse_args(args)
 
         # perform discover
-        zeroconf = Zeroconf()
-        listener = DiscoverListener(args=parsed)
-        # FIXME: @afdaniele - wrong type - listener supposed to be ServiceListener
-        #        should DiscoverListener be a subclass of ServiceListener
-        ServiceBrowser(zeroconf, "_duckietown._tcp.local.", listener)
+        listener = xbee_listener(args=parsed)
 
         while True:
             if dtslogger.level > logging.DEBUG:

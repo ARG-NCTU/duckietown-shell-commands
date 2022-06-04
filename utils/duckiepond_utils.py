@@ -1,21 +1,50 @@
 #!/usr/bin/env python3
 import os, sys
+import os.path
 import pytest
 import yaml
+import re
 
-hostnames = []
+def find_duckiepond_devices_yaml():
 
-def load_config():
+    dp_yaml_path = ""
 
-    with open("scuderia.yaml", 'r') as stream:
+    for root, dirs, files in os.walk(os.path.expanduser('~')):
+        for name in files:
+            if name == "duckiepond-devices.yaml":  
+                dp_yaml_path = os.path.abspath(os.path.join(root, name))
+                break
+
+    return dp_yaml_path 
+
+def dp_load_config(dp_yaml_path):
+
+    dp_dict = {}
+
+    with open(dp_yaml_path, 'r') as stream:
         try:
-            vehicles = yaml.safe_load(stream)
-            for box in vehicles.values():
-                for ip in box.values():
-                    hostnames.append(ip)
-                    print(ip)
+            dp_dict = yaml.safe_load(stream)
+            #devices.append(vehicles.keys())
+            #devices.append(vehicles['boat1']['rpi'])
+            #for veh in vehicles.values():
+            #    print(veh)
         except yaml.YAMLError as exc:
             print(exc)
+    
+    return dp_dict 
+
+def dp_get_devices(dp_yaml_path, pattern='boat*'):
+
+    dp_dict = dp_load_config(dp_yaml_path)
+
+    boats = []
+    for key in dp_dict.keys():
+        match = re.match(pattern, key)
+        if match:
+            boats.append(key)
+
+    return boats
+
 
 def ssh_ping_nano(hostname):
     response = os.system("ssh $USER@" + hostname + " ping -c 1 192.168.0.100")
