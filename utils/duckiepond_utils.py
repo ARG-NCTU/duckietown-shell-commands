@@ -60,9 +60,9 @@ def dp_print_boats(dp_yaml_path):
 
     header = [
         "['nano']['ip']", 
-        "['xbee_tx']", 
-        "['xbee_rx']", 
-        "Status", "States"]
+        "boat xbee_tx", 
+        "boat xbee_rx", 
+        "anch xbee_tx", "States"]
 
     data = []
     dp_dict = dp_load_config(dp_yaml_path)
@@ -73,12 +73,13 @@ def dp_print_boats(dp_yaml_path):
     #print("load boats: {}".format(boats))
 
     for boat in boats:
+        anchor = dp_dict[boat]['xbee_pair'] 
         row = (
             [boat, 
              dp_dict[boat]['nano']['ip'], 
              dp_dict[boat]['nano']['xbee_tx'], 
              dp_dict[boat]['rpi']['xbee_rx'], 
-             "status", 
+             dp_dict[anchor]['rpi_1']['xbee_tx'], 
              "states"]
         )
         data.append(row)
