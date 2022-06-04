@@ -28,18 +28,17 @@ class xbee_listener:
 
     def __init__(self, args):
         self.args = args
-        self.dp_yaml_path = find_duckiepond_devices_yaml()
-        self.boats = dp_get_devices(self.dp_yaml_path, 'boat*')
-        self.anchors = dp_get_devices(self.dp_yaml_path, 'anchor*')
-
-
+        self.dp_yaml_path = find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
 
     def print(self):
         # clear terminal
         os.system("cls" if os.name == "nt" else "clear")
+
         print("load config {}".format(self.dp_yaml_path))
-        print("load boats: {}".format(self.boats))
-        print("load anchors: {}".format(self.anchors))
+        dp_print_boats(self.dp_yaml_path)
+        dp_print_anchors(self.dp_yaml_path)
+
+
 
 class DiscoverListener:
     services = defaultdict(dict)
