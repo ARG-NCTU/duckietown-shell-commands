@@ -3,13 +3,16 @@ import json
 import logging
 import os
 import time
+
+import arg_robotics_tools
+import sys
+
 from collections import defaultdict
 from typing import List, Set
 
 from dt_shell import DTCommandAbs, dtslogger
-from utils.duckietown_utils import get_robot_types
 from utils.table_utils import fill_cell, format_matrix
-from utils.duckiepond_utils import * 
+from utils.duckiepond_utils import find_duckiepond_devices_yaml, dp_print_boats
 
 REFRESH_HZ = 1.0
 
@@ -27,6 +30,8 @@ usage = """
 class xbee_listener:
 
     def __init__(self, args):
+        print(sys.path)
+
         self.args = args
         self.dp_yaml_path = find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
 
@@ -169,7 +174,7 @@ class DTCommand(DTCommandAbs):
             "--type",
             dest="filter_type",
             default=None,
-            choices=get_robot_types(),
+            choices="",
             help="Filter devices by type",
         )
 

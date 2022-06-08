@@ -1,5 +1,9 @@
 from dt_shell import DTCommandAbs, DTShell
-
+import re
+import utils.duckietown_utils
+import utils.duckiepond_utils
+import arg_robotics_tools
+import sys
 
 class DTCommand(DTCommandAbs):
     help = 'Duckiepond command'
@@ -7,6 +11,7 @@ class DTCommand(DTCommandAbs):
     @staticmethod
     def command(shell: DTShell, args):
 
+        print(sys.path)
         print("Hello Duckiepond!")
         print(
             'You called the "%s" command, level %d, with arguments %r' % (

@@ -64,7 +64,7 @@ def dp_print_boats(dp_yaml_path):
     #print("load boats: {}".format(boats))
 
     for boat in boats:
-        anchor = dp_dict[boat]['xbee_pair'] 
+        anchor = dp_dict[boat]['xbee']['xbee_pair'] 
         anchor_tx = dp_dict[anchor]['rpi_1']['xbee_tx']
         anchor_rx = ""
         if 'rpi_2' in dp_dict[anchor]:
