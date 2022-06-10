@@ -3,16 +3,17 @@ import json
 import logging
 import os
 import time
+import re
 
-import arg_robotics_tools
+from arg_robotics_tools import get_ip
 import sys
 
 from collections import defaultdict
 from typing import List, Set
 
 from dt_shell import DTCommandAbs, dtslogger
-from utils.table_utils import fill_cell, format_matrix
-from utils.duckiepond_utils import find_duckiepond_devices_yaml, dp_print_boats
+from utils.table_utils import fill_cell, format_matrix, dp_print_boats
+#from utils.duckiepond_utils import find_duckiepond_devices_yaml, dp_print_boats
 
 REFRESH_HZ = 1.0
 
@@ -33,7 +34,7 @@ class xbee_listener:
         print(sys.path)
 
         self.args = args
-        self.dp_yaml_path = find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
+        self.dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
 
     def print(self):
         # clear terminal
@@ -182,7 +183,8 @@ class DTCommand(DTCommandAbs):
 
         # perform discover
         listener = xbee_listener(args=parsed)
-
+        #listener = DiscoverListener(args=parsed)
+        
         while True:
             if dtslogger.level > logging.DEBUG:
                 listener.print()

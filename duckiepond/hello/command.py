@@ -1,7 +1,7 @@
 from dt_shell import DTCommandAbs, DTShell
 import re
-import utils.duckietown_utils
-import utils.duckiepond_utils
+#import utils.duckietown_utils
+#import utils.duckiepond_utils
 import arg_robotics_tools
 import sys
 

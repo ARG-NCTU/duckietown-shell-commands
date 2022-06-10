@@ -10,6 +10,7 @@ $ git remote -v
 $ git remote set-url origin git@github.com:ARG-NCTU/duckietown-shell-commands.git
 $ git pull
 $ dts duckiepond hello
+$ pip3 install arg-robotics-tools -U
 ```
 
 ## dependency
