@@ -27,25 +27,7 @@ usage = """
         $ dts duckiepond discover [options]
 
 """
-
-class xbee_listener:
-
-    def __init__(self, args):
-        print(sys.path)
-
-        self.args = args
-        self.dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
-
-    def print(self):
-        # clear terminal
-        os.system("cls" if os.name == "nt" else "clear")
-
-        print("load config {}".format(self.dp_yaml_path))
-        dp_print_bots(self.dp_yaml_path)
-
-
-
-class DiscoverListener:
+class BotListener:
     services = defaultdict(dict)
     supported_services = [
         "DT::ONLINE",
@@ -57,7 +39,9 @@ class DiscoverListener:
     ]
 
     def __init__(self, args):
+        print(sys.path)
         self.args = args
+        self.dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
 
     def process_service_name(self, name):
         name = name.replace("._duckietown._tcp.local.", "")
@@ -94,6 +78,12 @@ class DiscoverListener:
     def print(self):
         # clear terminal
         os.system("cls" if os.name == "nt" else "clear")
+        print("load config {}".format(self.dp_yaml_path))
+        dp_print_bots(self.dp_yaml_path)
+
+    def print2(self):
+        # clear terminal
+        #os.system("cls" if os.name == "nt" else "clear")
         # get all discovered hostnames
         hostnames: Set[str] = set()
 
@@ -182,12 +172,11 @@ class DTCommand(DTCommandAbs):
         parsed = parser.parse_args(args)
 
         # perform discover
-        listener = xbee_listener(args=parsed)
-        #listener = DiscoverListener(args=parsed)
-        
+        listener = BotListener(args=parsed)
         while True:
             if dtslogger.level > logging.DEBUG:
                 listener.print()
+                listener.print2()
             time.sleep(1.0 / REFRESH_HZ)
 
 
