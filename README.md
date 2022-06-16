@@ -9,8 +9,25 @@ $ cd ~/.dt-shell/commands-multi/daffy/
 $ git remote -v
 $ git remote set-url origin git@github.com:ARG-NCTU/duckietown-shell-commands.git
 $ git pull
-$ dts duckiepond hello
 $ pip3 install arg-robotics-tools -U
+$ dts duckiepond hello
+```
+
+## clone duckie devices yaml
+
+```
+$ cd
+$ git clone git@github.com:ARG-NCTU/duckiepond-devices.git
+$ dts duckiepond discover
+```
+
+## when you need to update
+
+```
+$ cd ~/duckiepond-devices
+$ git pull
+$ cd ~/.dt-shell/commands-multi/daffy
+$ git pull
 ```
 
 ## dependency
