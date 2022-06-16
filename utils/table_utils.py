@@ -75,7 +75,7 @@ def dp_print_boats(dp_yaml_path):
     data = []
     dp_dict = get_ip.dp_load_config(dp_yaml_path)
 
-    #print("load config {}".format(dp_yaml_path))
+    print("load config {}".format(dp_yaml_path))
 
     boats = get_ip.dp_get_devices(dp_yaml_path, 'boat*')
     #print("load boats: {}".format(boats))

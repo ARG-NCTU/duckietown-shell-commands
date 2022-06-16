@@ -7,7 +7,7 @@ class DTCommand(DTCommandAbs):
     @staticmethod
     def command(shell: DTShell, args):
 
-        print("Hello Duckieboat!")
+        print("Hello my Duckieboat!")
         print(
             'You called the "%s" command, level %d, with arguments %r' % (
                 DTCommand.name,
