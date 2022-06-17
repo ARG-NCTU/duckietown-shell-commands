@@ -12,7 +12,7 @@ from collections import defaultdict
 from typing import List, Set
 
 from dt_shell import DTCommandAbs, dtslogger
-from utils.table_utils import fill_cell, format_matrix, dp_print_bots
+from utils.table_utils import fill_cell, format_matrix
 #from utils.duckiepond_utils import find_duckiepond_devices_yaml, dp_print_boats
 
 REFRESH_HZ = 1.0
@@ -77,16 +77,13 @@ class BotListener:
 
     def print(self):
         # clear terminal
-        #os.system("cls" if os.name == "nt" else "clear")
-        print("load config {}".format(self.dp_yaml_path))
-        dp_print_bots(self.dp_yaml_path)
-
-    def print2(self):
-        # clear terminal
         os.system("cls" if os.name == "nt" else "clear")
         # get all discovered hostnames
         hostnames: Set[str] = set()
 
+        dp_dict = get_ip.dp_load_config(self.dp_yaml_path)
+        bots = get_ip.dp_get_devices(self.dp_yaml_path, 'dt-kv-*')
+        
         for service in self.supported_services:
             hostnames_for_service: List[str] = list(self.services[service])
             hostnames.update(hostnames_for_service)
@@ -118,9 +115,20 @@ class BotListener:
             # "Busy",  # No [grey], Yes [green]
         ]
         columns = list(map(lambda c: " %s " % c, columns))
-        header = ["Type", "Model"] + columns + ["Hostname"]
+        header = ["ip", "Hostname"] + columns + ["uwb"]
         data = []
 
+        for bot in bots:
+    
+            row = (
+                [bot, 
+                 dp_dict[bot]['kv260']['ip'],
+                 dp_dict[bot]['kv260']['hostname'],
+                 "todo",
+                 "todo",
+                 dp_dict[bot]['kv260']['uwb']]
+            )
+            data.append(row)
         for device_hostname in list(sorted(hostnames)):
             # filter by robot type
             robot_type = hostname_to_type[device_hostname]
@@ -145,6 +153,8 @@ class BotListener:
         print("NOTE: Only devices flashed using duckietown-shell-commands v4.1.0+ are supported.\n")
         print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
 
+        print("load config {}".format(self.dp_yaml_path))
+        #self.dp_print_bots(self.dp_yaml_path)
 
 class DTCommand(DTCommandAbs):
     @staticmethod
@@ -177,7 +187,6 @@ class DTCommand(DTCommandAbs):
 
         while True:
             if dtslogger.level > logging.DEBUG:
-                listener.print2()
                 listener.print()
             time.sleep(1.0 / REFRESH_HZ)
 

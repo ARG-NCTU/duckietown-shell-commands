@@ -135,28 +135,3 @@ def dp_print_anchors(dp_yaml_path):
 
     print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
 
-def dp_print_bots(dp_yaml_path):
-
-    header = [
-        "['ip']", 
-        "hostname", 
-        "uwb",
-        "states"]
-
-    data = []
-    dp_dict = get_ip.dp_load_config(dp_yaml_path)
-    bots = get_ip.dp_get_devices(dp_yaml_path, 'dt-kv-*')
-
-    for bot in bots:
-
-        row = (
-            [bot, 
-             dp_dict[bot]['kv260']['ip'],
-             dp_dict[bot]['kv260']['hostname'],
-             dp_dict[bot]['kv260']['uwb'],
-             "todo"]
-        )
-        data.append(row)
-
-    print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
-
