@@ -77,13 +77,13 @@ class BotListener:
 
     def print(self):
         # clear terminal
-        os.system("cls" if os.name == "nt" else "clear")
+        #os.system("cls" if os.name == "nt" else "clear")
         print("load config {}".format(self.dp_yaml_path))
         dp_print_bots(self.dp_yaml_path)
 
     def print2(self):
         # clear terminal
-        #os.system("cls" if os.name == "nt" else "clear")
+        os.system("cls" if os.name == "nt" else "clear")
         # get all discovered hostnames
         hostnames: Set[str] = set()
 
@@ -170,13 +170,15 @@ class DTCommand(DTCommandAbs):
         )
 
         parsed = parser.parse_args(args)
-
+        zeroconf = Zeroconf()
         # perform discover
         listener = BotListener(args=parsed)
+        ServiceBrowser(zeroconf, "_duckietown._tcp.local.", listener)
+
         while True:
             if dtslogger.level > logging.DEBUG:
-                listener.print()
                 listener.print2()
+                listener.print()
             time.sleep(1.0 / REFRESH_HZ)
 
 
