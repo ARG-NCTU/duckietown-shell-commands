@@ -116,10 +116,10 @@ class BotListener:
         ]
         columns = list(map(lambda c: " %s " % c, columns))
         header = ["ip", "Hostname"] + columns + ["uwb"]
+        #header2 = ["Type", "Model"] + columns + ["Hostname"]
         data = []
 
         for bot in bots:
-    
             row = (
                 [bot, 
                  dp_dict[bot]['kv260']['ip'],
@@ -129,6 +129,7 @@ class BotListener:
                  dp_dict[bot]['kv260']['uwb']]
             )
             data.append(row)
+        #data.append(header2)
         for device_hostname in list(sorted(hostnames)):
             # filter by robot type
             robot_type = hostname_to_type[device_hostname]
@@ -142,6 +143,14 @@ class BotListener:
                 column_txt = fill_cell(text, len(column), color, bg_color)
                 statuses.append(column_txt)
             # prepare row
+            for bot in bots:
+                pass
+#                    [bot, 
+#                     dp_dict[bot]['kv260']['ip'],
+#                     dp_dict[bot]['kv260']['hostname'],
+#                     "todo",
+#                     "todo",
+#                     dp_dict[bot]['kv260']['uwb']]
             row = (
                 [device_hostname, robot_type, robot_configuration]
                 + statuses
@@ -150,10 +159,10 @@ class BotListener:
             data.append(row)
 
         # print table
+        print("load config {}".format(self.dp_yaml_path))
         print("NOTE: Only devices flashed using duckietown-shell-commands v4.1.0+ are supported.\n")
         print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
 
-        print("load config {}".format(self.dp_yaml_path))
         #self.dp_print_bots(self.dp_yaml_path)
 
 class DTCommand(DTCommandAbs):
