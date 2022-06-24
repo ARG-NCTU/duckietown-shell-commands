@@ -120,48 +120,34 @@ class BotListener:
         data = []
 
         for bot in bots:
-            row = (
-                [bot, 
-                 dp_dict[bot]['kv260']['ip'],
-                 dp_dict[bot]['kv260']['hostname'],
-                 "todo",
-                 "todo",
-                 dp_dict[bot]['kv260']['uwb']]
-            )
-            data.append(row)
-        #data.append(header2)
-        for device_hostname in list(sorted(hostnames)):
-            # filter by robot type
-            robot_type = hostname_to_type[device_hostname]
-            robot_configuration = hostname_to_config[device_hostname]
-            if self.args.filter_type and robot_type != self.args.filter_type:
-                continue
-            # prepare status list
-            statuses = []
-            for column in columns:
-                text, color, bg_color = column_to_text_and_color(column, device_hostname, self.services)
-                column_txt = fill_cell(text, len(column), color, bg_color)
-                statuses.append(column_txt)
-            # prepare row
-            for bot in bots:
-                print(dp_dict[bot]['kv260']['hostname'])
-                print(device_hostname)
-#                pass
+            gotit = False
+            for device_hostname in list(sorted(hostnames)):
                 if dp_dict[bot]['kv260']['hostname'] == device_hostname:
-                    print("got")
-#                    [bot, 
-#                     dp_dict[bot]['kv260']['ip'],
-#                     dp_dict[bot]['kv260']['hostname'],
-#                     "todo",
-#                     "todo",
-#                     dp_dict[bot]['kv260']['uwb']]
-            row = (
-                [device_hostname, robot_type, robot_configuration]
-                + statuses
-                + [str(device_hostname) + ".local"]
-            )
-            data.append(row)
-
+                    # prepare status list
+                    statuses = []
+                    for column in columns:
+                        text, color, bg_color = column_to_text_and_color(column, device_hostname, self.services)
+                        column_txt = fill_cell(text, len(column), color, bg_color)
+                        statuses.append(column_txt)
+                    gotit = True
+                    row = (
+                        [bot, 
+                        dp_dict[bot]['kv260']['ip'],
+                        dp_dict[bot]['kv260']['hostname']]
+                        + statuses
+                        +[dp_dict[bot]['kv260']['uwb']]
+                    )
+                    data.append(row)
+            if gotit == False:
+                row = (
+                    [bot, 
+                    dp_dict[bot]['kv260']['ip'],
+                    dp_dict[bot]['kv260']['hostname'],
+                    "no connection",
+                    "no connection",
+                    dp_dict[bot]['kv260']['uwb']]
+                )
+                data.append(row)
         # print table
         print("load config {}".format(self.dp_yaml_path))
         print("NOTE: Only devices flashed using duckietown-shell-commands v4.1.0+ are supported.\n")
