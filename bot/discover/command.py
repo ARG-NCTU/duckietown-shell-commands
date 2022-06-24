@@ -144,7 +144,11 @@ class BotListener:
                 statuses.append(column_txt)
             # prepare row
             for bot in bots:
-                pass
+                print(dp_dict[bot]['kv260']['hostname'])
+                print(device_hostname)
+#                pass
+                if dp_dict[bot]['kv260']['hostname'] == device_hostname:
+                    print("got")
 #                    [bot, 
 #                     dp_dict[bot]['kv260']['ip'],
 #                     dp_dict[bot]['kv260']['hostname'],
