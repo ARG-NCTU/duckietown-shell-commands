@@ -12,7 +12,7 @@ from collections import defaultdict
 from typing import List, Set
 
 from dt_shell import DTCommandAbs, dtslogger
-from utils.table_utils import fill_cell, format_matrix, dp_print_boats
+from utils.table_utils import fill_cell, format_matrix
 #from utils.duckiepond_utils import find_duckiepond_devices_yaml, dp_print_boats
 
 REFRESH_HZ = 1.0
@@ -36,12 +36,48 @@ class xbee_listener:
         self.args = args
         self.dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
 
+    def dp_print_boats(self):
+    
+        header = [
+            "['nano']['ip']", 
+            "boat xbee_tx", 
+            "boat xbee_rx", 
+            "anch xbee_tx", 
+            "anch xbee_rx",
+            "states"]
+    
+        data = []
+        dp_dict = get_ip.dp_load_config(self.dp_yaml_path)
+        boats = get_ip.dp_get_devices(self.dp_yaml_path, 'boat*')
+    
+        for boat in boats:
+            anchor = dp_dict[boat]['xbee']['xbee_pair'] 
+            anchor_tx = dp_dict[anchor]['rpi_1']['xbee_tx']
+            anchor_rx = ""
+            if 'rpi_2' in dp_dict[anchor]:
+                anchor_rx = dp_dict[anchor]['rpi_2']['xbee_rx']
+            elif 'tvl' in dp_dict[anchor]:
+                anchor_rx = 'tvl ' + dp_dict[anchor]['tvl']['ip']
+    
+            row = (
+                [boat, 
+                 dp_dict[boat]['nano']['ip'], 
+                 dp_dict[boat]['nano']['xbee_tx'], 
+                 dp_dict[boat]['rpi']['xbee_rx'], 
+                 anchor_tx,
+                 anchor_rx,
+                 "todo"]
+            )
+            data.append(row)
+    
+        print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
+    
     def print(self):
         # clear terminal
         os.system("cls" if os.name == "nt" else "clear")
 
         print("load config {}".format(self.dp_yaml_path))
-        dp_print_boats(self.dp_yaml_path)
+        self.dp_print_boats()
 
 
 
