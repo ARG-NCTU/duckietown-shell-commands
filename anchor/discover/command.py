@@ -181,6 +181,70 @@ class AnchorListener:
         print("NOTE: Only devices flashed using duckietown-shell-commands v4.1.0+ are supported.\n")
         print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
     
+    def print2(self):
+        # clear terminal
+        os.system("cls" if os.name == "nt" else "clear")
+        # get all discovered hostnames
+        hostnames: Set[str] = set()
+
+        for service in self.supported_services:
+            hostnames_for_service: List[str] = list(self.services[service])
+            hostnames.update(hostnames_for_service)
+        # create hostname -> robot_type map
+        hostname_to_type = defaultdict(lambda: "ND")
+        for device_hostname in self.services["DT::ROBOT_TYPE"]:
+            dev = self.services["DT::ROBOT_TYPE"][device_hostname]
+            if len(dev["txt"]) and "type" in dev["txt"]:
+                try:
+                    hostname_to_type[device_hostname] = dev["txt"]["type"]
+                except:  # XXX: complain a bit
+                    pass
+        # create hostname -> robot_configuration map
+        hostname_to_config = defaultdict(lambda: "ND")
+        for device_hostname in self.services["DT::ROBOT_CONFIGURATION"]:
+            dev = self.services["DT::ROBOT_CONFIGURATION"][device_hostname]
+            if len(dev["txt"]) and "configuration" in dev["txt"]:
+                try:
+                    hostname_to_config[device_hostname] = dev["txt"]["configuration"]
+                except:
+                    pass
+        # prepare table
+        columns = [
+            "Status",  # Booting [yellow], Ready [green]
+            # TODO: Internet check is kind of unstable at this time, disabling it
+            # "Internet",  # No [grey], Yes [green]
+            "Dashboard",  # Down [grey], Up [green]
+            # TODO: Busy is not used at this time, disabling it
+            # "Busy",  # No [grey], Yes [green]
+        ]
+        columns = list(map(lambda c: " %s " % c, columns))
+        header = ["Type", "Model"] + columns + ["Hostname"]
+        data = []
+
+        for device_hostname in list(sorted(hostnames)):
+            # filter by robot type
+            robot_type = hostname_to_type[device_hostname]
+            robot_configuration = hostname_to_config[device_hostname]
+            if self.args.filter_type and robot_type != self.args.filter_type:
+                continue
+            # prepare status list
+            statuses = []
+            for column in columns:
+                text, color, bg_color = column_to_text_and_color(column, device_hostname, self.services)
+                column_txt = fill_cell(text, len(column), color, bg_color)
+                statuses.append(column_txt)
+            # prepare row
+            row = (
+                [device_hostname, robot_type, robot_configuration]
+                + statuses
+                + [str(device_hostname) + ".local"]
+            )
+            data.append(row)
+
+        # print table
+        print("NOTE: Only devices flashed using duckietown-shell-commands v4.1.0+ are supported.\n")
+        print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
+
 class DTCommand(DTCommandAbs):
     @staticmethod
     def command(shell, args):
@@ -212,7 +276,7 @@ class DTCommand(DTCommandAbs):
         
         while True:
             if dtslogger.level > logging.DEBUG:
-                listener.print()
+                listener.print2()
             time.sleep(1.0 / REFRESH_HZ)
 
 
