@@ -5,6 +5,8 @@ We could setup a few dts commands to setup a device in Duckiepond. This is suppo
 ## Change to our forked repo
 
 ```
+$ pip3 install duckietown-shell
+$ dts
 $ cd ~/.dt-shell/commands-multi/daffy/
 $ git remote -v
 $ git remote set-url origin git@github.com:ARG-NCTU/duckietown-shell-commands.git
