@@ -122,6 +122,8 @@ class AnchorListener:
         for anchor in anchors:
             gotit = False
             for device_hostname in list(sorted(hostnames)):
+                print(device_hostname)
+                print(dp_dict[anchor]['rpi_1']['hostname'])
                 if dp_dict[anchor]['rpi_1']['hostname'] == device_hostname:
                     statuses = []
                     for column in columns:
@@ -179,33 +181,6 @@ class AnchorListener:
         print("NOTE: Only devices flashed using duckietown-shell-commands v4.1.0+ are supported.\n")
         print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
     
-    def print2(self):
-        # clear terminal
-        os.system("cls" if os.name == "nt" else "clear")
-
-        for device_hostname in list(sorted(hostnames)):
-            # filter by robot type
-            robot_type = hostname_to_type[device_hostname]
-            robot_configuration = hostname_to_config[device_hostname]
-            if self.args.filter_type and robot_type != self.args.filter_type:
-                continue
-            # prepare status list
-            statuses = []
-            for column in columns:
-                text, color, bg_color = column_to_text_and_color(column, device_hostname, self.services)
-                column_txt = fill_cell(text, len(column), color, bg_color)
-                statuses.append(column_txt)
-            # prepare row
-            row = (
-                [device_hostname, robot_type, robot_configuration]
-                + statuses
-                + [str(device_hostname) + ".local"]
-            )
-            data.append(row)
-
-        print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
-
-
 class DTCommand(DTCommandAbs):
     @staticmethod
     def command(shell, args):
