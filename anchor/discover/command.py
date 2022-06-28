@@ -28,60 +28,7 @@ usage = """
 
 """
 
-class xbee_listener:
-
-    def __init__(self, args):
-        print(sys.path)
-
-        self.args = args
-        self.dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
-
-    def dp_print_anchors(self):
-    
-        header = [
-            "['nano']['ip']", 
-            "boat xbee_tx", 
-            "boat xbee_rx", 
-            "anch xbee_tx", 
-            "anch xbee_rx",
-            "states"]
-    
-        data = []
-        dp_dict = get_ip.dp_load_config(self.dp_yaml_path)
-        boats = get_ip.dp_get_devices(self.dp_yaml_path, 'boat*')
-    
-        for boat in boats:
-            anchor = dp_dict[boat]['xbee']['xbee_pair'] 
-            anchor_tx = dp_dict[anchor]['rpi_1']['xbee_tx']
-            anchor_rx = ""
-            if 'rpi_2' in dp_dict[anchor]:
-                anchor_rx = dp_dict[anchor]['rpi_2']['xbee_rx']
-            elif 'tvl' in dp_dict[anchor]:
-                anchor_rx = 'tvl ' + dp_dict[anchor]['tvl']['ip']
-    
-            row = (
-                [boat, 
-                 dp_dict[boat]['nano']['ip'], 
-                 dp_dict[boat]['nano']['xbee_tx'], 
-                 dp_dict[boat]['rpi']['xbee_rx'], 
-                 anchor_tx,
-                 anchor_rx,
-                 "todo"]
-            )
-            data.append(row)
-    
-        print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
-    
-    def print(self):
-        # clear terminal
-        os.system("cls" if os.name == "nt" else "clear")
-
-        print("load config {}".format(self.dp_yaml_path))
-        self.dp_print_anchors()
-
-
-
-class DiscoverListener:
+class AnchorListener:
     services = defaultdict(dict)
     supported_services = [
         "DT::ONLINE",
@@ -94,6 +41,7 @@ class DiscoverListener:
 
     def __init__(self, args):
         self.args = args
+        self.dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
 
     def process_service_name(self, name):
         name = name.replace("._duckietown._tcp.local.", "")
@@ -133,6 +81,9 @@ class DiscoverListener:
         # get all discovered hostnames
         hostnames: Set[str] = set()
 
+        dp_dict = get_ip.dp_load_config(self.dp_yaml_path)
+        anchors = get_ip.dp_get_devices(self.dp_yaml_path, 'anchor*')
+        
         for service in self.supported_services:
             hostnames_for_service: List[str] = list(self.services[service])
             hostnames.update(hostnames_for_service)
@@ -164,8 +115,73 @@ class DiscoverListener:
             # "Busy",  # No [grey], Yes [green]
         ]
         columns = list(map(lambda c: " %s " % c, columns))
-        header = ["Type", "Model"] + columns + ["Hostname"]
+        header = ["ip","hostname"]  + columns + ["rpi2 / tvl","hostname", "uwb"]
         data = []
+
+    
+        for anchor in anchors:
+            gotit = False
+            for device_hostname in list(sorted(hostnames)):
+                if dp_dict[anchor]['rpi_1']['hostname'] == device_hostname:
+                    statuses = []
+                    for column in columns:
+                        text, color, bg_color = column_to_text_and_color(column, device_hostname, self.services)
+                        column_txt = fill_cell(text, len(column), color, bg_color)
+                        statuses.append(column_txt)
+                    gotit = True 
+                    if (anchor=='anchor7') or (anchor=='anchor8'):
+                        row = (
+                            [anchor, 
+                            dp_dict[anchor]['rpi_1']['ip'],
+                            dp_dict[anchor]['rpi_1']['hostname']]
+                             + statuses +
+                            [dp_dict[anchor]['tvl']['ip'],
+                            "tvl",
+                            dp_dict[anchor]['rpi_1']['uwb']]
+                        )
+                    else:
+                        row = (
+                            [anchor, 
+                            dp_dict[anchor]['rpi_1']['ip'],
+                            dp_dict[anchor]['rpi_1']['hostname']]
+                            + statuses +
+                            [dp_dict[anchor]['rpi_2']['ip'],
+                            dp_dict[anchor]['rpi_2']['hostname'],
+                            dp_dict[anchor]['rpi_1']['uwb']]
+                        )
+                    data.append(row) 
+            if gotit == False:
+                if (anchor=='anchor7') or (anchor=='anchor8'):
+                    row = (
+                        [anchor, 
+                        dp_dict[anchor]['rpi_1']['ip'],
+                        dp_dict[anchor]['rpi_1']['hostname'],
+                        "no connect",
+                        "no connect",
+                        dp_dict[anchor]['tvl']['ip'],
+                        "tvl",
+                        dp_dict[anchor]['rpi_1']['uwb']]
+                    )
+                else:
+                    row = (
+                        [anchor, 
+                        dp_dict[anchor]['rpi_1']['ip'],
+                        dp_dict[anchor]['rpi_1']['hostname'],
+                        "no connect",
+                        "no connect",
+                        dp_dict[anchor]['rpi_2']['ip'],
+                        dp_dict[anchor]['rpi_2']['hostname'],
+                        dp_dict[anchor]['rpi_1']['uwb']]
+                    )
+                data.append(row)        
+        # print table
+        print("load config {}".format(self.dp_yaml_path))
+        print("NOTE: Only devices flashed using duckietown-shell-commands v4.1.0+ are supported.\n")
+        print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
+    
+    def print2(self):
+        # clear terminal
+        os.system("cls" if os.name == "nt" else "clear")
 
         for device_hostname in list(sorted(hostnames)):
             # filter by robot type
@@ -187,8 +203,6 @@ class DiscoverListener:
             )
             data.append(row)
 
-        # print table
-        print("NOTE: Only devices flashed using duckietown-shell-commands v4.1.0+ are supported.\n")
         print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
 
 
@@ -218,7 +232,7 @@ class DTCommand(DTCommandAbs):
         parsed = parser.parse_args(args)
 
         # perform discover
-        listener = xbee_listener(args=parsed)
+        listener = AnchorListener(args=parsed)
         #listener = DiscoverListener(args=parsed)
         
         while True:

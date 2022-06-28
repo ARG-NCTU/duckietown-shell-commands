@@ -143,8 +143,8 @@ class BotListener:
                     [bot, 
                     dp_dict[bot]['kv260']['ip'],
                     dp_dict[bot]['kv260']['hostname'],
-                    "no connection",
-                    "no connection",
+                    "no connect",
+                    "no connect",
                     dp_dict[bot]['kv260']['uwb']]
                 )
                 data.append(row)
