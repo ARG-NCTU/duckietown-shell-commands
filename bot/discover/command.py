@@ -187,7 +187,7 @@ class DTCommand(DTCommandAbs):
         while True:
             if dtslogger.level > logging.DEBUG:
                 listener.print()
-            time.sleep(1.0 / REFRESH_HZ)
+            time.sleep(2.0 / REFRESH_HZ)
 
 
 def column_to_text_and_color(column, hostname, services):
