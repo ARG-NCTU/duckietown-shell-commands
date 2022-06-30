@@ -1,1 +1,4 @@
 
+[submodule "duckiepond-devices"]
+	path = duckiepond-devices
+	url = git@github.com:ARG-NCTU/duckiepond-devices.git
