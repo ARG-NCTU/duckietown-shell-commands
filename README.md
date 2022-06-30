@@ -18,18 +18,19 @@ $ dts duckiepond hello
 ## clone duckie devices yaml
 
 ```
-$ cd
-$ git clone git@github.com:ARG-NCTU/duckiepond-devices.git
-$ dts duckiepond discover
+$ cd ~/.dt-shell/commands-multi/daffy/
+$ git submodule init
+$ git submodule update
 ```
 
 ## when you need to update
 
 ```
-$ cd ~/duckiepond-devices
-$ git pull
 $ cd ~/.dt-shell/commands-multi/daffy
 $ git pull
+$ cd duckiepond-devices
+$ git submodule init
+$ git submodule update
 ```
 
 ## dependency
