@@ -76,8 +76,6 @@ class AnchorListener:
         pass
 
     def print(self):
-        # clear terminal
-        os.system("cls" if os.name == "nt" else "clear")
         # get all discovered hostnames
         hostnames: Set[str] = set()
 
@@ -174,6 +172,8 @@ class AnchorListener:
                         dp_dict[anchor]['rpi_1']['uwb']]
                     )
                 data.append(row)        
+        # clear terminal
+        os.system("cls" if os.name == "nt" else "clear")
         # print table
         print("load config {}".format(self.dp_yaml_path))
         print("NOTE: Only devices flashed using duckietown-shell-commands v4.1.0+ are supported.\n")
