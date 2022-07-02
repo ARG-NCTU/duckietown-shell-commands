@@ -1,21 +1,41 @@
-# dts duckiepond
+# dts commands for duckiepond
 
 We could setup a few dts commands to setup a device in Duckiepond. This is supposed to run on the laptop on the base station.
 
-## Change to our forked repo
+## Use Docker (suggested)
+
+This method works on Ubuntu or Mac.
+
+Note that we mount this repo to ~/.dt-shell/commands-multi/daffy, and mount your ~/.ssh so that you could use your ssh key in container.
 
 ```
-$ pip3 install duckietown-shell
+source docker_run.sh
+```
+
+Say Hello
+```
+dts boat hello
+```
+
+## Use Native Ubuntu 20.04
+
+Follow the installation instruction [here](https://docs.duckietown.org/daffy/opmanual_duckiebot/out/laptop_setup.html).
+
+Change to our forked repo
+
+```
+$ pip3 install -U duckietown-shell
 $ dts
 $ cd ~/.dt-shell/commands-multi/daffy/
 $ git remote -v
 $ git remote set-url origin git@github.com:ARG-NCTU/duckietown-shell-commands.git
 $ git pull
-$ pip3 install arg-robotics-tools -U
-$ dts duckiepond hello
+$ pip3 install -U arg-robotics-tools
 ```
 
-## clone duckie devices yaml
+### duckie devices yaml
+
+Note that we have submodule duckiepond-devices [private repo](https://github.com/ARG-NCTU/duckiepond-devices).
 
 ```
 $ cd ~/.dt-shell/commands-multi/daffy/
@@ -23,7 +43,7 @@ $ git submodule init
 $ git submodule update
 ```
 
-## when you need to update
+### when you need to update
 
 ```
 $ cd ~/.dt-shell/commands-multi/daffy
