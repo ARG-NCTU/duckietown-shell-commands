@@ -98,6 +98,10 @@ RUN pip3 install --no-cache-dir --user --upgrade duckietown-shell
 ENV PATH "$PATH:/home/arg/.local/bin"
 RUN dts --set-version daffy
 RUN dts version
+RUN rm -rf ~/.dt-shell/commands
+
+RUN pip3 install -U arg-robotics-tools
+ 
 RUN git config --global --add safe.directory /home/arg/.dt-shell/commands-multi/daffy
 RUN echo "export PATH=$PATH:/home/arg/.local/bin" > /home/arg/.bashrc
 
