@@ -26,6 +26,9 @@ Change to our forked repo
 ```
 $ pip3 install -U duckietown-shell
 $ dts
+```
+press ctrl+C to escape dts
+```
 $ cd ~/.dt-shell/commands-multi/daffy/
 $ git remote -v
 $ git remote set-url origin git@github.com:ARG-NCTU/duckietown-shell-commands.git
