@@ -36,8 +36,7 @@ class xbee_listener:
         self.args = args
         self.dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
 
-    def dp_print_boats(self):
-    
+    def print(self):
         header = [
             "['nano']['ip']", 
             "boat xbee_tx", 
@@ -69,18 +68,12 @@ class xbee_listener:
                  "todo"]
             )
             data.append(row)
-    
-        print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
-    
-    def print(self):
+     
         # clear terminal
         os.system("cls" if os.name == "nt" else "clear")
-
         print("load config {}".format(self.dp_yaml_path))
-        self.dp_print_boats()
-
-
-
+        print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
+    
 class DiscoverListener:
     services = defaultdict(dict)
     supported_services = [
