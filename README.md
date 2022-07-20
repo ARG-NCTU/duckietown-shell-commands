@@ -25,6 +25,7 @@ Change to our forked repo
 
 ```
 $ pip3 install -U duckietown-shell
+$ dts --set-version daffy
 $ dts
 ```
 press ctrl+C to escape dts
