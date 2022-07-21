@@ -10,12 +10,20 @@ Note that we mount this repo to ~/.dt-shell/commands-multi/daffy, and mount your
 
 ```
 source docker_run.sh
+source environment.sh
+dts
+```
+press ctrl+C to escape dts
+```
+source set_arg_dts.sh
 ```
 
 Say Hello
 ```
 dts boat hello
 ```
+if you see hello then it works!!
+
 
 ## Use Native Ubuntu 20.04
 
