@@ -13,9 +13,6 @@ from typing import List, Set
 
 from dt_shell import DTCommandAbs, dtslogger
 from utils.table_utils import fill_cell, format_matrix
-
-import threading
-import roslibpy
 #from utils.duckiepond_utils import find_duckiepond_devices_yaml, dp_print_boats
 
 REFRESH_HZ = 1.0
@@ -30,74 +27,6 @@ usage = """
         $ dts duckiepond discover [options]
 
 """
-
-'''
-uwb_distance part
-return:
-    global list distance [0,0,0,0]
-'''
-def subscribe_callback1(message):
-    global uwb_distance
-    #print(uwb_distance)
-    if message['data'] != 0 and message['data'] < 10000:
-        #print("anchor1" + " " +str(message['data']))
-        uwb_distance[0] = message['data']
-
-def subscribe_callback2(message):
-    global uwb_distance
-    if message['data'] != 0 and message['data'] < 10000:
-        #print("anchor2" + " " +str(message['data']))
-        uwb_distance[1] = message['data']
-
-def subscribe_callback3(message):
-    global uwb_distance
-    if message['data'] != 0 and message['data'] < 10000:
-        #print("anchor3" + " " +str(message['data']))
-        uwb_distance[2] = message['data']
-def subscribe_callback4(message):
-    global uwb_distance
-    if message['data'] != 0 and message['data'] < 10000:
-        #print("anchor4" + " " +str(message['data']))
-        uwb_distance[3] = message['data']
-
-def get_distance(ip,):
-    try:
-        client = roslibpy.Ros(host = ip, port = 9090)
-        client.run()
-        print('Is ROS connected?', client.is_connected)
-    
-        if ip == "192.168.1.12": topic_name = "/anchor01/distance"
-        elif ip == "192.168.1.42": topic_name = "/anchor04/distance"
-        elif ip == "192.168.1.52": topic_name = "/anchor05/distance"
-        elif ip == "192.168.1.82": topic_name = "/anchor08/distance"
-
-        topic_type = client.get_topic_type(topic_name)
-        print('type_is ' + topic_type)
-        listener = roslibpy.Topic(client, topic_name, topic_type, throttle_rate=100)
-    
-        if ip == "192.168.1.12": listener.subscribe(subscribe_callback1)
-        elif ip == "192.168.1.42": listener.subscribe(subscribe_callback2)
-        elif ip == "192.168.1.52": listener.subscribe(subscribe_callback3)
-        elif ip == "192.168.1.82": listener.subscribe(subscribe_callback4)
-    except:
-        print("cannot connect to Ros")
-        
-
-dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
-dp_dict = get_ip.dp_load_config(dp_yaml_path)
-
-threads = []
-uwb_distance = [0,0,0,0]
-ip = ['192.168.1.12', "192.168.1.42", "192.168.1.52", "192.168.1.82"]
-for i in range(4):
-    threads.append(threading.Thread(target = get_distance, args = (ip[i],)))
-    threads[i].start()
-
-'''
-dts part
-
-'''
-
 class AnchorListener:
     services = defaultdict(dict)
     supported_services = [
@@ -112,6 +41,7 @@ class AnchorListener:
     def __init__(self, args):
         print(sys.path)
         self.args = args
+        self.dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
 
     def process_service_name(self, name):
         name = name.replace("._duckietown._tcp.local.", "")
@@ -146,11 +76,11 @@ class AnchorListener:
         pass
 
     def print(self):
-        global uwb_distance
         # get all discovered hostnames
         hostnames: Set[str] = set()
 
-        anchors = get_ip.dp_get_devices(dp_yaml_path, 'anchor*')
+        dp_dict = get_ip.dp_load_config(self.dp_yaml_path)
+        anchors = get_ip.dp_get_devices(self.dp_yaml_path, 'anchor*')
         
         for service in self.supported_services:
             hostnames_for_service: List[str] = list(self.services[service])
@@ -186,12 +116,7 @@ class AnchorListener:
         header = ["ip","hostname"]  + columns + ["rpi2 / tvl","hostname", "uwb"]
         data = []
 
-        dp_dict['anchor1']['rpi_1']['uwb'] = uwb_distance[0]
-        dp_dict['anchor4']['rpi_1']['uwb'] = uwb_distance[1]
-        dp_dict['anchor5']['rpi_1']['uwb'] = uwb_distance[2]
-        dp_dict['anchor8']['rpi_1']['uwb'] = uwb_distance[3]
-
-
+    
         for anchor in anchors:
             gotit = False
             for device_hostname in list(sorted(hostnames)):
