@@ -8,3 +8,5 @@ RUN dts --set-version daffy
 RUN export PATH=$PATH:/root/.local/bin
 RUN which dts
 #RUN dts
+RUN apt-get update
+RUN apt-get install ssh

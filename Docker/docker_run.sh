@@ -59,7 +59,10 @@ docker run \
     -v "/tmp/.X11-unix:/tmp/.X11-unix" \
     -v "/etc/localtime:/etc/localtime:ro" \
     -v "/dev:/dev" \
+    -v "/home/$USER/.ssh:/home/arg/.ssh" \
     -v "/var/run/docker.sock:/var/run/docker.sock" \
+    -v "/home/$USER/.dt-shell/commands-multi/daffy/Docker/environment.sh:/home/arg/environment.sh" \
+    -v "/home/$USER/.dt-shell/commands-multi/daffy/Docker/set_arg_dts.sh:/home/arg/set_arg_dts.sh" \
     -w "/home/arg" \
     --name argtool \
     --network host \

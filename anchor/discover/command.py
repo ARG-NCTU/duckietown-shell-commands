@@ -30,66 +30,113 @@ usage = """
         $ dts duckiepond discover [options]
 
 """
+dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
+dp_dict = get_ip.dp_load_config(dp_yaml_path)
+uwb = [0,0,0,0,0,0,0,0]
 
 '''
 uwb_distance part
-return:
-    global list distance [0,0,0,0]
+
 '''
 def subscribe_callback1(message):
-    global uwb_distance
+    global dp_dict
+    global uwb
     #print(uwb_distance)
     if message['data'] != 0 and message['data'] < 10000:
         #print("anchor1" + " " +str(message['data']))
-        uwb_distance[0] = message['data']
-
+        dp_dict['anchor1']['rpi_1']['uwb'] = message['data']
+        uwb[0] = message['data']
 def subscribe_callback2(message):
-    global uwb_distance
+    global dp_dict
+    global uwb
     if message['data'] != 0 and message['data'] < 10000:
         #print("anchor2" + " " +str(message['data']))
-        uwb_distance[1] = message['data']
-
+        dp_dict['anchor2']['rpi_1']['uwb'] = message['data']
+        uwb[1] = message['data']
 def subscribe_callback3(message):
-    global uwb_distance
+    global dp_dict
+    global uwb
     if message['data'] != 0 and message['data'] < 10000:
         #print("anchor3" + " " +str(message['data']))
-        uwb_distance[2] = message['data']
+        dp_dict['anchor3']['rpi_1']['uwb'] = message['data']
+        uwb[2] = message['data']
 def subscribe_callback4(message):
-    global uwb_distance
+    global dp_dict
+    global uwb
     if message['data'] != 0 and message['data'] < 10000:
         #print("anchor4" + " " +str(message['data']))
-        uwb_distance[3] = message['data']
+        dp_dict['anchor4']['rpi_1']['uwb'] = message['data']
+        uwb[3] = message['data']
+def subscribe_callback5(message):
+    global dp_dict
+    global uwb
+    if message['data'] != 0 and message['data'] < 10000:
+        #print("anchor4" + " " +str(message['data']))
+        dp_dict['anchor5']['rpi_1']['uwb'] = message['data']
+        uwb[4] = message['data']
+def subscribe_callback6(message):
+    global dp_dict
+    global uwb
+    if message['data'] != 0 and message['data'] < 10000:
+        #print("anchor4" + " " +str(message['data']))
+        dp_dict['anchor6']['rpi_1']['uwb'] = message['data']
+        uwb[5] = message['data']
+def subscribe_callback7(message):
+    global dp_dict
+    global uwb
+    if message['data'] != 0 and message['data'] < 10000:
+        #print("anchor4" + " " +str(message['data']))
+        dp_dict['anchor7']['rpi_1']['uwb'] = message['data']
+        uwb[6] = message['data']
+        
+def subscribe_callback8(message):
+    global dp_dict
+    global uwb
+    if message['data'] != 0 and message['data'] < 10000:
+        #print("anchor4" + " " +str(message['data']))
+        dp_dict['anchor8']['rpi_1']['uwb'] = message['data']
+        uwb[7] = message['data']
+
+
+
 
 def get_distance(ip,):
+    global dp_dict
+
     try:
         client = roslibpy.Ros(host = ip, port = 9090)
         client.run()
-        print('Is ROS connected?', client.is_connected)
+        #print('Is ROS connected?', client.is_connected)
     
-        if ip == "192.168.1.12": topic_name = "/anchor01/distance"
-        elif ip == "192.168.1.42": topic_name = "/anchor04/distance"
-        elif ip == "192.168.1.52": topic_name = "/anchor05/distance"
-        elif ip == "192.168.1.82": topic_name = "/anchor08/distance"
+        if ip == '192.168.1.12': topic_name = "/anchor01/distance"
+        elif ip == '192.168.1.22': topic_name = "/anchor02/distance"
+        elif ip == '192.168.1.32': topic_name = "/anchor03/distance"
+        elif ip == '192.168.1.42': topic_name = "/anchor04/distance"
+        elif ip == '192.168.1.52': topic_name = "/anchor05/distance"
+        elif ip == '192.168.1.62': topic_name = "/anchor06/distance"
+        elif ip == '192.168.1.72': topic_name = "/anchor07/distance"
+        elif ip == '192.168.1.82': topic_name = "/anchor08/distance"
 
         topic_type = client.get_topic_type(topic_name)
-        print('type_is ' + topic_type)
+        #print('type_is ' + topic_type)
         listener = roslibpy.Topic(client, topic_name, topic_type, throttle_rate=100)
-    
-        if ip == "192.168.1.12": listener.subscribe(subscribe_callback1)
-        elif ip == "192.168.1.42": listener.subscribe(subscribe_callback2)
-        elif ip == "192.168.1.52": listener.subscribe(subscribe_callback3)
-        elif ip == "192.168.1.82": listener.subscribe(subscribe_callback4)
+
+        if ip == '192.168.1.12': listener.subscribe(subscribe_callback1)
+        elif ip == '192.168.1.22': listener.subscribe(subscribe_callback2)
+        elif ip == '192.168.1.32': listener.subscribe(subscribe_callback3)
+        elif ip == '192.168.1.42': listener.subscribe(subscribe_callback4)
+        elif ip == '192.168.1.52': listener.subscribe(subscribe_callback5)
+        elif ip == '192.168.1.62': listener.subscribe(subscribe_callback6)
+        elif ip == '192.168.1.72': listener.subscribe(subscribe_callback7)
+        elif ip == '192.168.1.82': listener.subscribe(subscribe_callback8)
     except:
-        print("cannot connect to Ros")
+        print()
         
 
-dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
-dp_dict = get_ip.dp_load_config(dp_yaml_path)
 
 threads = []
-uwb_distance = [0,0,0,0]
-ip = ['192.168.1.12', "192.168.1.42", "192.168.1.52", "192.168.1.82"]
-for i in range(4):
+ip = ['192.168.1.12','192.168.1.22','192.168.1.32','192.168.1.42','192.168.1.52','192.168.1.62','192.168.1.72','192.168.1.82']
+for i in range(7):
     threads.append(threading.Thread(target = get_distance, args = (ip[i],)))
     threads[i].start()
 
@@ -146,7 +193,7 @@ class AnchorListener:
         pass
 
     def print(self):
-        global uwb_distance
+        global uwb
         # get all discovered hostnames
         hostnames: Set[str] = set()
 
@@ -186,10 +233,14 @@ class AnchorListener:
         header = ["ip","hostname"]  + columns + ["rpi2 / tvl","hostname", "uwb"]
         data = []
 
-        dp_dict['anchor1']['rpi_1']['uwb'] = uwb_distance[0]
-        dp_dict['anchor4']['rpi_1']['uwb'] = uwb_distance[1]
-        dp_dict['anchor5']['rpi_1']['uwb'] = uwb_distance[2]
-        dp_dict['anchor8']['rpi_1']['uwb'] = uwb_distance[3]
+        dp_dict['anchor1']['rpi_1']['uwb'] = uwb[0]
+        dp_dict['anchor2']['rpi_1']['uwb'] = uwb[1]
+        dp_dict['anchor3']['rpi_1']['uwb'] = uwb[2]
+        dp_dict['anchor4']['rpi_1']['uwb'] = uwb[3]
+        dp_dict['anchor5']['rpi_1']['uwb'] = uwb[4]
+        dp_dict['anchor6']['rpi_1']['uwb'] = uwb[5]
+        dp_dict['anchor7']['rpi_1']['uwb'] = uwb[6]
+        dp_dict['anchor8']['rpi_1']['uwb'] = uwb[7]
 
 
         for anchor in anchors:
@@ -250,7 +301,7 @@ class AnchorListener:
         # clear terminal
         os.system("cls" if os.name == "nt" else "clear")
         # print table
-        print("load config {}".format(self.dp_yaml_path))
+        print("load config {}".format(dp_yaml_path))
         print("NOTE: Only devices flashed using duckietown-shell-commands v4.1.0+ are supported.\n")
         print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
 
