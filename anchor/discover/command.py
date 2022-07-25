@@ -162,7 +162,7 @@ class AnchorListener:
             # "Busy",  # No [grey], Yes [green]
         ]
         columns = list(map(lambda c: " %s " % c, columns))
-        header = ["ip","hostname"]  + columns + ["rpi2 / tvl","hostname", "uwb"]
+        header = ["ip","hostname"]  + columns + ["boat heart bit", "uwb"]
         data = []
 
         for i in range(8):
@@ -180,50 +180,25 @@ class AnchorListener:
                         column_txt = fill_cell(text, len(column), color, bg_color)
                         statuses.append(column_txt)
                     gotit = True 
-                    if (anchor=='anchor7') or (anchor=='anchor8'):
-                        row = (
-                            [anchor, 
-                            dp_dict[anchor]['rpi_1']['ip'],
-                            dp_dict[anchor]['rpi_1']['hostname']]
-                             + statuses +
-                            [dp_dict[anchor]['tvl']['ip'],
-                            "tvl",
-                            dp_dict[anchor]['rpi_1']['uwb']]
-                        )
-                    else:
-                        row = (
-                            [anchor, 
-                            dp_dict[anchor]['rpi_1']['ip'],
-                            dp_dict[anchor]['rpi_1']['hostname']]
-                            + statuses +
-                            [dp_dict[anchor]['rpi_2']['ip'],
-                            dp_dict[anchor]['rpi_2']['hostname'],
-                            dp_dict[anchor]['rpi_1']['uwb']]
-                        )
+                    row = (
+                        [anchor, 
+                        dp_dict[anchor]['rpi_1']['ip'],
+                        dp_dict[anchor]['rpi_1']['hostname']]
+                         + statuses +
+                        ["boat XXX is alive",
+                        dp_dict[anchor]['rpi_1']['uwb']]
+                    )
                     data.append(row) 
             if gotit == False:
-                if (anchor=='anchor7') or (anchor=='anchor8'):
-                    row = (
-                        [anchor, 
-                        dp_dict[anchor]['rpi_1']['ip'],
-                        dp_dict[anchor]['rpi_1']['hostname'],
-                        "no connect",
-                        "no connect",
-                        dp_dict[anchor]['tvl']['ip'],
-                        "tvl",
-                        dp_dict[anchor]['rpi_1']['uwb']]
-                    )
-                else:
-                    row = (
-                        [anchor, 
-                        dp_dict[anchor]['rpi_1']['ip'],
-                        dp_dict[anchor]['rpi_1']['hostname'],
-                        "no connect",
-                        "no connect",
-                        dp_dict[anchor]['rpi_2']['ip'],
-                        dp_dict[anchor]['rpi_2']['hostname'],
-                        dp_dict[anchor]['rpi_1']['uwb']]
-                    )
+                row = (
+                    [anchor, 
+                    dp_dict[anchor]['rpi_1']['ip'],
+                    dp_dict[anchor]['rpi_1']['hostname'],
+                    "no connect",
+                    "no connect",
+                    "anchor no connect",
+                    dp_dict[anchor]['rpi_1']['uwb']]
+                )
                 data.append(row)        
         # clear terminal
         os.system("cls" if os.name == "nt" else "clear")
