@@ -4,6 +4,7 @@ import logging
 import os
 import time
 import re
+from datetime import datetime
 
 from arg_robotics_tools import get_ip
 import sys
@@ -226,14 +227,14 @@ class AnchorListener:
                     dp_dict[anchor]['rpi_1']['ip'],
                     dp_dict[anchor]['rpi_1']['hostname'],
                     "no connect",
-                    "no connect",
                     "anchor no connect",
-                    dp_dict[anchor]['rpi_1']['uwb']]
+                    "no uwb data"]
                 )
                 data.append(row)        
         # clear terminal
         os.system("cls" if os.name == "nt" else "clear")
         # print table
+        print(datetime.now())
         print("ARG define command : dts anchor discover")
         print("Config : {}\n".format(dp_yaml_path))
         #print("NOTE: Only devices flashed using duckietown-shell-commands v4.1.0+ are supported.\n")
