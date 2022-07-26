@@ -189,9 +189,6 @@ class AnchorListener:
             "Status",  # Booting [yellow], Ready [green]
             # TODO: Internet check is kind of unstable at this time, disabling it
             # "Internet",  # No [grey], Yes [green]
-            "Dashboard",  # Down [grey], Up [green]
-            # TODO: Busy is not used at this time, disabling it
-            # "Busy",  # No [grey], Yes [green]
         ]
         columns = list(map(lambda c: " %s " % c, columns))
         header = ["ip","hostname"]  + columns + ["boat heart bit", "uwb"]
@@ -237,8 +234,9 @@ class AnchorListener:
         # clear terminal
         os.system("cls" if os.name == "nt" else "clear")
         # print table
-        print("load config {}".format(dp_yaml_path))
-        print("NOTE: Only devices flashed using duckietown-shell-commands v4.1.0+ are supported.\n")
+        print("ARG define command : dts anchor discover")
+        print("Config : {}\n".format(dp_yaml_path))
+        #print("NOTE: Only devices flashed using duckietown-shell-commands v4.1.0+ are supported.\n")
         print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
 
 class DTCommand(DTCommandAbs):
