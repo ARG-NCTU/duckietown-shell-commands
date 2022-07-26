@@ -30,20 +30,25 @@ usage = """
         $ dts duckiepond discover [options]
 
 """
+
+'''
+global variables
+'''
 dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
 dp_dict = get_ip.dp_load_config(dp_yaml_path)
 uwb_distance = [0,0,0,0,0,0,0,0]
 uwb_id = {'27238': 0, '22025': 1, '26436': 3, '27208':4, '27142':5, '27210':7}
+boat_status = {'anchor1':'connecting', 'anchor2': 'connecting', 'anchor3': 'connecting', 'anchor4': 'connecting', 'anchor5': 'connecting', 'anchor6': 'connecting', 'anchor7': 'connecting','anchor8': 'connecting'}
 
 '''
 uwb_distance part
 
 '''
-def subscribe_callback(message):
+def distance_callback(message):
     global distance
     global uwb_id
     if len(message['rangeArray']) !=0 :
-        if message['rangeArray'][0]['distance'] != 0 and message['rangeArray'][0]['distance'] < 8000:
+        if message['rangeArray'][0]['distance'] != 0 and message['rangeArray'][0]['distance'] < 20000:
             index = uwb_id[str(message['rangeArray'][0]['self_id'])]
             uwb_distance[int(index)] = message['rangeArray'][0]['distance']
 
@@ -60,17 +65,45 @@ def get_distance(ip,):
         topic_type = client.get_topic_type(topic_name)
         #print('type_is ' + topic_type)
         listener = roslibpy.Topic(client, topic_name, topic_type, throttle_rate=100)
-        listener.subscribe(subscribe_callback)
+        listener.subscribe(distance_callback)
     except:
-        print("cannot connect to Ros")
-        
+        #print("cannot connect to Ros")
+        print(" ")
 
+'''
+boat alive part
+'''
+def boat_callback(message):
+    global boat_status
+    boat_status['anchor' + str(message['data'][4])] = message['data']
 
+def get_boat_status(ip,):
+    try:
+        client = roslibpy.Ros(host = ip, port = 9090)
+        client.run()
+       #print('Is ROS connected?', client.is_connected)
+    
+        topic_name_boat = "/anchor"+ ip[-2] +"/status"
+
+        topic_type_boat = client.get_topic_type(topic_name_boat)
+        listener_boat = roslibpy.Topic(client, topic_name_boat, topic_type_boat, throttle_rate=100)
+        listener_boat.subscribe(boat_callback)
+    except:
+       # print("cannot connect to Ros")
+       print(" ")
+
+'''
+roslibpy threading part
+'''
 threads = []
 ip = ['192.168.1.42','192.168.1.52','192.168.1.62','192.168.1.82']
 for i in range(4):
     threads.append(threading.Thread(target = get_distance, args = (ip[i],)))
+for i in range(4):
+    threads.append(threading.Thread(target = get_boat_status, args = (ip[i],)))
+for i in range(len(threads)):
     threads[i].start()
+
 
 '''
 dts part
@@ -125,7 +158,6 @@ class AnchorListener:
         pass
 
     def print(self):
-        global uwb
         # get all discovered hostnames
         hostnames: Set[str] = set()
 
@@ -179,16 +211,18 @@ class AnchorListener:
                         text, color, bg_color = column_to_text_and_color(column, device_hostname, self.services)
                         column_txt = fill_cell(text, len(column), color, bg_color)
                         statuses.append(column_txt)
-                    gotit = True 
+                    gotit = True
                     row = (
                         [anchor, 
                         dp_dict[anchor]['rpi_1']['ip'],
                         dp_dict[anchor]['rpi_1']['hostname']]
-                         + statuses +
-                        ["boat XXX is alive",
+                        + statuses +
+                        [boat_status[anchor],
                         dp_dict[anchor]['rpi_1']['uwb']]
                     )
-                    data.append(row) 
+                    data.append(row)
+                    if boat_status[anchor][-5:] == 'alive': #main code 1Hz alive -> dead, thread 10Hz dead -> alive, if boat is dead, thread will dead
+                        boat_status[anchor] = 'connecting'
             if gotit == False:
                 row = (
                     [anchor, 
@@ -268,4 +302,5 @@ def column_to_text_and_color(column, hostname, services):
             text, color, bg_color = "Yes", "white", "green"
     # ----------
     return text, color, bg_color
+
 
