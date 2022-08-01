@@ -37,39 +37,8 @@ global variables
 '''
 dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
 dp_dict = get_ip.dp_load_config(dp_yaml_path)
-uwb_distance = [0,0,0,0,0,0,0,0]
-uwb_id = {'27238': 0, '22025': 1, '26436': 3, '27208':4, '27142':5, '27210':7}
 boat_status = {'anchor1':'connecting', 'anchor2': 'connecting', 'anchor3': 'connecting', 'anchor4': 'connecting', 'anchor5': 'connecting', 'anchor6': 'connecting', 'anchor7': 'connecting','anchor8': 'connecting'}
 
-'''
-uwb_distance part
-
-'''
-def distance_callback(message):
-    global distance
-    global uwb_id
-    if len(message['rangeArray']) !=0 :
-        if message['rangeArray'][0]['distance'] != 0 and message['rangeArray'][0]['distance'] < 20000:
-            index = uwb_id[str(message['rangeArray'][0]['self_id'])]
-            uwb_distance[int(index)] = message['rangeArray'][0]['distance']
-
-
-def get_distance(ip,):
-    global uwb_distance
-    try:
-        client = roslibpy.Ros(host = ip, port = 9090)
-        client.run()
-       #print('Is ROS connected?', client.is_connected)
-    
-        topic_name = "/anchor0"+ ip[-2] +"/ranges"
-
-        topic_type = client.get_topic_type(topic_name)
-        #print('type_is ' + topic_type)
-        listener = roslibpy.Topic(client, topic_name, topic_type, throttle_rate=100)
-        listener.subscribe(distance_callback)
-    except:
-        #print("cannot connect to Ros")
-        print(" ")
 
 '''
 boat alive part
@@ -98,8 +67,6 @@ roslibpy threading part
 '''
 threads = []
 ip = ['192.168.1.42','192.168.1.52','192.168.1.62','192.168.1.82']
-for i in range(4):
-    threads.append(threading.Thread(target = get_distance, args = (ip[i],)))
 for i in range(4):
     threads.append(threading.Thread(target = get_boat_status, args = (ip[i],)))
 for i in range(len(threads)):
@@ -192,13 +159,8 @@ class AnchorListener:
             # "Internet",  # No [grey], Yes [green]
         ]
         columns = list(map(lambda c: " %s " % c, columns))
-        header = ["ip","hostname"]  + columns + ["boat heart bit", "uwb"]
+        header = ["ip","hostname"]  + columns + ["boat heart bit"]
         data = []
-
-        for i in range(8):
-            if uwb_distance[i] != 0:
-                dp_dict['anchor' + str(i+1)]['rpi_1']['uwb'] = uwb_distance[i]
-
 
         for anchor in anchors:
             gotit = False
@@ -215,8 +177,7 @@ class AnchorListener:
                         dp_dict[anchor]['rpi_1']['ip'],
                         dp_dict[anchor]['rpi_1']['hostname']]
                         + statuses +
-                        [boat_status[anchor],
-                        dp_dict[anchor]['rpi_1']['uwb']]
+                        [boat_status[anchor]]
                     )
                     data.append(row)
                     if boat_status[anchor][-5:] == 'alive': #main code 1Hz alive -> dead, thread 10Hz dead -> alive, if boat is dead, thread will dead
@@ -227,8 +188,7 @@ class AnchorListener:
                     dp_dict[anchor]['rpi_1']['ip'],
                     dp_dict[anchor]['rpi_1']['hostname'],
                     "no connect",
-                    "anchor no connect",
-                    "no uwb data"]
+                    "anchor no connect"]
                 )
                 data.append(row)        
         # clear terminal
