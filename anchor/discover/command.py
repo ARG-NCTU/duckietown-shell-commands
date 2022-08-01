@@ -154,7 +154,7 @@ class AnchorListener:
                     pass
         # prepare table
         columns = [
-            "Status",  # Booting [yellow], Ready [green]
+            "anchor",  # Booting [yellow], Ready [green]
             # TODO: Internet check is kind of unstable at this time, disabling it
             # "Internet",  # No [grey], Yes [green]
         ]
@@ -185,8 +185,8 @@ class AnchorListener:
                 row = (
                     [anchor, 
                     dp_dict[anchor]['rpi_1']['ip'],
-                    "no connect",
-                    "anchor no connect"]
+                    "disconnect",
+                    "anchor disconnect"]
                 )
                 data.append(row)        
         # clear terminal
