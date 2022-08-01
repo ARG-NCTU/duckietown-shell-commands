@@ -4,6 +4,7 @@ import logging
 import os
 import time
 import re
+from datetime import datetime
 
 from arg_robotics_tools import get_ip
 import sys
@@ -13,6 +14,9 @@ from typing import List, Set
 
 from dt_shell import DTCommandAbs, dtslogger
 from utils.table_utils import fill_cell, format_matrix
+
+import threading
+import roslibpy
 #from utils.duckiepond_utils import find_duckiepond_devices_yaml, dp_print_boats
 
 REFRESH_HZ = 1.0
@@ -27,6 +31,86 @@ usage = """
         $ dts duckiepond discover [options]
 
 """
+
+'''
+global variables
+'''
+dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
+dp_dict = get_ip.dp_load_config(dp_yaml_path)
+uwb_distance = [0,0,0,0,0,0,0,0]
+uwb_id = {'27238': 0, '22025': 1, '26436': 3, '27208':4, '27142':5, '27210':7}
+boat_status = {'anchor1':'connecting', 'anchor2': 'connecting', 'anchor3': 'connecting', 'anchor4': 'connecting', 'anchor5': 'connecting', 'anchor6': 'connecting', 'anchor7': 'connecting','anchor8': 'connecting'}
+
+'''
+uwb_distance part
+
+'''
+def distance_callback(message):
+    global distance
+    global uwb_id
+    if len(message['rangeArray']) !=0 :
+        if message['rangeArray'][0]['distance'] != 0 and message['rangeArray'][0]['distance'] < 20000:
+            index = uwb_id[str(message['rangeArray'][0]['self_id'])]
+            uwb_distance[int(index)] = message['rangeArray'][0]['distance']
+
+
+def get_distance(ip,):
+    global uwb_distance
+    try:
+        client = roslibpy.Ros(host = ip, port = 9090)
+        client.run()
+       #print('Is ROS connected?', client.is_connected)
+    
+        topic_name = "/anchor0"+ ip[-2] +"/ranges"
+
+        topic_type = client.get_topic_type(topic_name)
+        #print('type_is ' + topic_type)
+        listener = roslibpy.Topic(client, topic_name, topic_type, throttle_rate=100)
+        listener.subscribe(distance_callback)
+    except:
+        #print("cannot connect to Ros")
+        print(" ")
+
+'''
+boat alive part
+'''
+def boat_callback(message):
+    global boat_status
+    boat_status['anchor' + str(message['data'][4])] = message['data']
+
+def get_boat_status(ip,):
+    try:
+        client = roslibpy.Ros(host = ip, port = 9090)
+        client.run()
+       #print('Is ROS connected?', client.is_connected)
+    
+        topic_name_boat = "/anchor"+ ip[-2] +"/status"
+
+        topic_type_boat = client.get_topic_type(topic_name_boat)
+        listener_boat = roslibpy.Topic(client, topic_name_boat, topic_type_boat, throttle_rate=100)
+        listener_boat.subscribe(boat_callback)
+    except:
+       # print("cannot connect to Ros")
+       print(" ")
+
+'''
+roslibpy threading part
+'''
+threads = []
+ip = ['192.168.1.42','192.168.1.52','192.168.1.62','192.168.1.82']
+for i in range(4):
+    threads.append(threading.Thread(target = get_distance, args = (ip[i],)))
+for i in range(4):
+    threads.append(threading.Thread(target = get_boat_status, args = (ip[i],)))
+for i in range(len(threads)):
+    threads[i].start()
+
+
+'''
+dts part
+
+'''
+
 class AnchorListener:
     services = defaultdict(dict)
     supported_services = [
@@ -41,7 +125,6 @@ class AnchorListener:
     def __init__(self, args):
         print(sys.path)
         self.args = args
-        self.dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
 
     def process_service_name(self, name):
         name = name.replace("._duckietown._tcp.local.", "")
@@ -79,8 +162,7 @@ class AnchorListener:
         # get all discovered hostnames
         hostnames: Set[str] = set()
 
-        dp_dict = get_ip.dp_load_config(self.dp_yaml_path)
-        anchors = get_ip.dp_get_devices(self.dp_yaml_path, 'anchor*')
+        anchors = get_ip.dp_get_devices(dp_yaml_path, 'anchor*')
         
         for service in self.supported_services:
             hostnames_for_service: List[str] = list(self.services[service])
@@ -108,15 +190,16 @@ class AnchorListener:
             "Status",  # Booting [yellow], Ready [green]
             # TODO: Internet check is kind of unstable at this time, disabling it
             # "Internet",  # No [grey], Yes [green]
-            "Dashboard",  # Down [grey], Up [green]
-            # TODO: Busy is not used at this time, disabling it
-            # "Busy",  # No [grey], Yes [green]
         ]
         columns = list(map(lambda c: " %s " % c, columns))
-        header = ["ip","hostname"]  + columns + ["rpi2 / tvl","hostname", "uwb"]
+        header = ["ip","hostname"]  + columns + ["boat heart bit", "uwb"]
         data = []
 
-    
+        for i in range(8):
+            if uwb_distance[i] != 0:
+                dp_dict['anchor' + str(i+1)]['rpi_1']['uwb'] = uwb_distance[i]
+
+
         for anchor in anchors:
             gotit = False
             for device_hostname in list(sorted(hostnames)):
@@ -126,57 +209,35 @@ class AnchorListener:
                         text, color, bg_color = column_to_text_and_color(column, device_hostname, self.services)
                         column_txt = fill_cell(text, len(column), color, bg_color)
                         statuses.append(column_txt)
-                    gotit = True 
-                    if (anchor=='anchor7') or (anchor=='anchor8'):
-                        row = (
-                            [anchor, 
-                            dp_dict[anchor]['rpi_1']['ip'],
-                            dp_dict[anchor]['rpi_1']['hostname']]
-                             + statuses +
-                            [dp_dict[anchor]['tvl']['ip'],
-                            "tvl",
-                            dp_dict[anchor]['rpi_1']['uwb']]
-                        )
-                    else:
-                        row = (
-                            [anchor, 
-                            dp_dict[anchor]['rpi_1']['ip'],
-                            dp_dict[anchor]['rpi_1']['hostname']]
-                            + statuses +
-                            [dp_dict[anchor]['rpi_2']['ip'],
-                            dp_dict[anchor]['rpi_2']['hostname'],
-                            dp_dict[anchor]['rpi_1']['uwb']]
-                        )
-                    data.append(row) 
+                    gotit = True
+                    row = (
+                        [anchor, 
+                        dp_dict[anchor]['rpi_1']['ip'],
+                        dp_dict[anchor]['rpi_1']['hostname']]
+                        + statuses +
+                        [boat_status[anchor],
+                        dp_dict[anchor]['rpi_1']['uwb']]
+                    )
+                    data.append(row)
+                    if boat_status[anchor][-5:] == 'alive': #main code 1Hz alive -> dead, thread 10Hz dead -> alive, if boat is dead, thread will dead
+                        boat_status[anchor] = 'connecting'
             if gotit == False:
-                if (anchor=='anchor7') or (anchor=='anchor8'):
-                    row = (
-                        [anchor, 
-                        dp_dict[anchor]['rpi_1']['ip'],
-                        dp_dict[anchor]['rpi_1']['hostname'],
-                        "no connect",
-                        "no connect",
-                        dp_dict[anchor]['tvl']['ip'],
-                        "tvl",
-                        dp_dict[anchor]['rpi_1']['uwb']]
-                    )
-                else:
-                    row = (
-                        [anchor, 
-                        dp_dict[anchor]['rpi_1']['ip'],
-                        dp_dict[anchor]['rpi_1']['hostname'],
-                        "no connect",
-                        "no connect",
-                        dp_dict[anchor]['rpi_2']['ip'],
-                        dp_dict[anchor]['rpi_2']['hostname'],
-                        dp_dict[anchor]['rpi_1']['uwb']]
-                    )
+                row = (
+                    [anchor, 
+                    dp_dict[anchor]['rpi_1']['ip'],
+                    dp_dict[anchor]['rpi_1']['hostname'],
+                    "no connect",
+                    "anchor no connect",
+                    "no uwb data"]
+                )
                 data.append(row)        
         # clear terminal
         os.system("cls" if os.name == "nt" else "clear")
         # print table
-        print("load config {}".format(self.dp_yaml_path))
-        print("NOTE: Only devices flashed using duckietown-shell-commands v4.1.0+ are supported.\n")
+        print(datetime.now())
+        print("ARG define command : dts anchor discover")
+        print("Config : {}\n".format(dp_yaml_path))
+        #print("NOTE: Only devices flashed using duckietown-shell-commands v4.1.0+ are supported.\n")
         print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
 
 class DTCommand(DTCommandAbs):
@@ -240,3 +301,5 @@ def column_to_text_and_color(column, hostname, services):
             text, color, bg_color = "Yes", "white", "green"
     # ----------
     return text, color, bg_color
+
+
