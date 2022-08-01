@@ -159,7 +159,7 @@ class AnchorListener:
             # "Internet",  # No [grey], Yes [green]
         ]
         columns = list(map(lambda c: " %s " % c, columns))
-        header = ["ip","hostname"]  + columns + ["boat heart bit"]
+        header = ["ip"]  + columns + ["boat heart beat"]
         data = []
 
         for anchor in anchors:
@@ -174,8 +174,7 @@ class AnchorListener:
                     gotit = True
                     row = (
                         [anchor, 
-                        dp_dict[anchor]['rpi_1']['ip'],
-                        dp_dict[anchor]['rpi_1']['hostname']]
+                        dp_dict[anchor]['rpi_1']['ip']]
                         + statuses +
                         [boat_status[anchor]]
                     )
@@ -186,7 +185,6 @@ class AnchorListener:
                 row = (
                     [anchor, 
                     dp_dict[anchor]['rpi_1']['ip'],
-                    dp_dict[anchor]['rpi_1']['hostname'],
                     "no connect",
                     "anchor no connect"]
                 )
@@ -196,7 +194,7 @@ class AnchorListener:
         # print table
         print(datetime.now())
         print("ARG define command : dts anchor discover")
-        print("Config : {}\n".format(dp_yaml_path))
+        #print("Config : {}\n".format(dp_yaml_path))
         #print("NOTE: Only devices flashed using duckietown-shell-commands v4.1.0+ are supported.\n")
         print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
 
