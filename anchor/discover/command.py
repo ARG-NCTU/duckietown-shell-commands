@@ -33,6 +33,7 @@ usage = """
 
 """
 
+
 '''
 global variables
 '''
@@ -50,26 +51,20 @@ def boat_callback(message):
 
 def get_boat_status(ip,):
     try:
-        client = roslibpy.Ros(host = ip, port = 9090)
-        client.run()
-       #print('Is ROS connected?', client.is_connected)
-    
-        topic_name_boat = "/anchor"+ ip[-2] +"/status"
+        boat  =  websocket.ros_socket(ip)
 
-        topic_type_boat = client.get_topic_type(topic_name_boat)
-        listener_boat = roslibpy.Topic(client, topic_name_boat, topic_type_boat, throttle_rate=100)
-        listener_boat.subscribe(boat_callback)
+        topic_name_boat = "/anchor"+ ip[-2] +"/status"
+        boat.subscriber(topic_name_boat, boat_callback, 100)
     except:
-       # print("cannot connect to Ros")
        pass
 
 '''
 roslibpy threading part
 '''
 threads = []
-ip = ['192.168.1.42','192.168.1.52','192.168.1.62','192.168.1.82']
-for i in range(4):
-    threads.append(threading.Thread(target = get_boat_status, args = (ip[i],)))
+anchors = get_ip.dp_get_devices(dp_yaml_path, 'anchor*')
+for anchor in anchors:
+    threads.append(threading.Thread(target = get_boat_status, args = (dp_dict[anchor]['rpi_1']['ip'],)))
 for i in range(len(threads)):
     threads[i].start()
 
@@ -248,3 +243,4 @@ def column_to_text_and_color(column, hostname, services, anchor):
             text, color, bg_color = boat_status[anchor], "white", "green"
     # ----------
     return text, color, bg_color
+
