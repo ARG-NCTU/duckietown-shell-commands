@@ -199,7 +199,7 @@ class AnchorListener:
 class DTCommand(DTCommandAbs):
     @staticmethod
     def command(shell, args):
-        prog = "dts fleet discover"
+        prog = "dts anchor discover"
 
         # try to import zeroconf
         try:
