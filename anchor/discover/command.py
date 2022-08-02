@@ -7,6 +7,7 @@ import re
 from datetime import datetime
 
 from arg_robotics_tools import get_ip
+from arg_robotics_tools import websocket_rosbridge as websocket
 import sys
 
 from collections import defaultdict
