@@ -60,7 +60,7 @@ def get_boat_status(ip,):
         listener_boat.subscribe(boat_callback)
     except:
        # print("cannot connect to Ros")
-       print(" ")
+       pass
 
 '''
 roslibpy threading part
@@ -154,12 +154,11 @@ class AnchorListener:
                     pass
         # prepare table
         columns = [
-            "anchor",  # Booting [yellow], Ready [green]
-            # TODO: Internet check is kind of unstable at this time, disabling it
-            # "Internet",  # No [grey], Yes [green]
+            "anchor",
+            "boat heart beat"
         ]
         columns = list(map(lambda c: " %s " % c, columns))
-        header = ["ip"]  + columns + ["boat heart beat"]
+        header = ["ip"]  + columns
         data = []
 
         for anchor in anchors:
@@ -168,15 +167,14 @@ class AnchorListener:
                 if dp_dict[anchor]['rpi_1']['hostname'] == device_hostname:
                     statuses = []
                     for column in columns:
-                        text, color, bg_color = column_to_text_and_color(column, device_hostname, self.services)
+                        text, color, bg_color = column_to_text_and_color(column, device_hostname, self.services, anchor)
                         column_txt = fill_cell(text, len(column), color, bg_color)
                         statuses.append(column_txt)
                     gotit = True
                     row = (
                         [anchor, 
                         dp_dict[anchor]['rpi_1']['ip']]
-                        + statuses +
-                        [boat_status[anchor]]
+                        + statuses
                     )
                     data.append(row)
                     if boat_status[anchor][-5:] == 'alive': #main code 1Hz alive -> dead, thread 10Hz dead -> alive, if boat is dead, thread will dead
@@ -233,31 +231,19 @@ class DTCommand(DTCommandAbs):
             time.sleep(2.0 / REFRESH_HZ)
 
 
-def column_to_text_and_color(column, hostname, services):
+def column_to_text_and_color(column, hostname, services, anchor):
     column = column.strip()
     text, color, bg_color = "ND", "white", "grey"
     #  -> Status
-    if column == "Status":
+    if column == "anchor":
         if hostname in services["DT::PRESENCE"]:
             text, color, bg_color = "Ready", "white", "green"
         if hostname in services["DT::BOOTING"]:
             text, color, bg_color = "Booting", "white", "yellow"
-    #  -> Dashboard
-    if column == "Dashboard":
-        text, color, bg_color = "Down", "white", "grey"
-        if hostname in services["DT::DASHBOARD"]:
-            text, color, bg_color = "Up", "white", "green"
-    #  -> Internet
-    if column == "Internet":
-        text, color, bg_color = "No", "white", "grey"
-        if hostname in services["DT::ONLINE"]:
-            text, color, bg_color = "Yes", "white", "green"
-    #  -> Busy
-    if column == "Busy":
-        text, color, bg_color = "No", "white", "grey"
-        if hostname in services["DT::BUSY"]:
-            text, color, bg_color = "Yes", "white", "green"
+    if column == "boat heart beat":
+        if boat_status[anchor] == 'connecting':
+            text, color, bg_color = boat_status[anchor], "white", "red"
+        else:
+            text, color, bg_color = boat_status[anchor], "white", "green"
     # ----------
     return text, color, bg_color
-
-
