@@ -39,6 +39,7 @@ global variables
 '''
 dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
 dp_dict = get_ip.dp_load_config(dp_yaml_path)
+anchors = get_ip.dp_get_devices(dp_yaml_path, 'anchor*')
 boat_status = {'anchor1':'connecting', 'anchor2': 'connecting', 'anchor3': 'connecting', 'anchor4': 'connecting', 'anchor5': 'connecting', 'anchor6': 'connecting', 'anchor7': 'connecting','anchor8': 'connecting'}
 
 
@@ -62,7 +63,6 @@ def get_boat_status(ip,):
 roslibpy threading part
 '''
 threads = []
-anchors = get_ip.dp_get_devices(dp_yaml_path, 'anchor*')
 for anchor in anchors:
     threads.append(threading.Thread(target = get_boat_status, args = (dp_dict[anchor]['rpi_1']['ip'],)))
 for i in range(len(threads)):
@@ -125,8 +125,6 @@ class AnchorListener:
         # get all discovered hostnames
         hostnames: Set[str] = set()
 
-        anchors = get_ip.dp_get_devices(dp_yaml_path, 'anchor*')
-        
         for service in self.supported_services:
             hostnames_for_service: List[str] = list(self.services[service])
             hostnames.update(hostnames_for_service)
