@@ -4,5 +4,7 @@
 .idea
 /lib
 
+log/
+
 tags
 tags.lock
