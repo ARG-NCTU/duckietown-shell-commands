@@ -37,6 +37,7 @@ usage = """
 '''
 global variables
 '''
+f = open("log/test.txt", "w")
 dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
 dp_dict = get_ip.dp_load_config(dp_yaml_path)
 anchors = get_ip.dp_get_devices(dp_yaml_path, 'anchor*')
