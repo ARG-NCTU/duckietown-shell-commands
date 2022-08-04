@@ -228,7 +228,7 @@ class AnchorListener:
                     dp_dict[anchor]['rpi_1']['hostname'],
                     "no connect",
                     "anchor no connect",
-                    "no uwb data"]
+                    dp_dict[anchor]['rpi_1']['uwb']]
                 )
                 data.append(row)        
         # clear terminal
