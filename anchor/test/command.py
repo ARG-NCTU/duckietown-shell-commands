@@ -37,7 +37,10 @@ usage = """
 '''
 global variables
 '''
-f = open("log/test.txt", "w")
+filename = "log/test.txt"
+f = open(filename, "w")
+f.write(datetime.now().strftime("%m/%d/%Y, %H:%M:%S")+"\n")
+f.close()
 dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
 dp_dict = get_ip.dp_load_config(dp_yaml_path)
 anchors = get_ip.dp_get_devices(dp_yaml_path, 'anchor*')
@@ -123,6 +126,7 @@ class AnchorListener:
         pass
 
     def print(self):
+        global f
         # get all discovered hostnames
         hostnames: Set[str] = set()
 
@@ -147,49 +151,28 @@ class AnchorListener:
                     hostname_to_config[device_hostname] = dev["txt"]["configuration"]
                 except:
                     pass
-        # prepare table
-        columns = [
-            "anchor",
-            "boat heart beat"
-        ]
-        columns = list(map(lambda c: " %s " % c, columns))
-        header = ["ip"]  + columns
-        data = []
-
+        datastr = []
+        datastr.append("time "+datetime.now().strftime("%d:%H:%M:%S")+"\n")
         for anchor in anchors:
-            gotit = False
             for device_hostname in list(sorted(hostnames)):
                 if dp_dict[anchor]['rpi_1']['hostname'] == device_hostname:
-                    statuses = []
-                    for column in columns:
-                        text, color, bg_color = column_to_text_and_color(column, device_hostname, self.services, anchor)
-                        column_txt = fill_cell(text, len(column), color, bg_color)
-                        statuses.append(column_txt)
-                    gotit = True
-                    row = (
-                        [anchor, 
-                        dp_dict[anchor]['rpi_1']['ip']]
-                        + statuses
-                    )
-                    data.append(row)
+                    datastr.append(anchor)
+                    if boat_status[anchor] != 'connecting':
+                        datastr.append("boat_alive")
                     if boat_status[anchor][-5:] == 'alive': #main code 1Hz alive -> dead, thread 10Hz dead -> alive, if boat is dead, thread will dead
                         boat_status[anchor] = 'connecting'
-            if gotit == False:
-                row = (
-                    [anchor, 
-                    dp_dict[anchor]['rpi_1']['ip'],
-                    "disconnect",
-                    "anchor disconnect"]
-                )
-                data.append(row)        
         # clear terminal
         os.system("cls" if os.name == "nt" else "clear")
         # print table
-        print(datetime.now())
-        print("ARG define command : dts anchor discover")
-        #print("Config : {}\n".format(dp_yaml_path))
-        #print("NOTE: Only devices flashed using duckietown-shell-commands v4.1.0+ are supported.\n")
-        print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
+        print("ARG define command : dts anchor test\n")
+        print("-------data is logging-------\n")
+        #f.write("Now the file has more content!")
+        f = open(filename, "a")
+        s = " ".join(str(d) for d in datastr)
+        print(s)
+        f.write(s+"\n")
+        #f.write(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
+        f.close()
 
 class DTCommand(DTCommandAbs):
     @staticmethod
@@ -223,23 +206,4 @@ class DTCommand(DTCommandAbs):
         while True:
             if dtslogger.level > logging.DEBUG:
                 listener.print()
-            time.sleep(1.0 / REFRESH_HZ)
-
-
-def column_to_text_and_color(column, hostname, services, anchor):
-    column = column.strip()
-    text, color, bg_color = "ND", "white", "grey"
-    #  -> Status
-    if column == "anchor":
-        if hostname in services["DT::PRESENCE"]:
-            text, color, bg_color = "Ready", "white", "green"
-        if hostname in services["DT::BOOTING"]:
-            text, color, bg_color = "Booting", "white", "yellow"
-    if column == "boat heart beat":
-        if boat_status[anchor] == 'connecting':
-            text, color, bg_color = boat_status[anchor], "white", "red"
-        else:
-            text, color, bg_color = boat_status[anchor], "white", "green"
-    # ----------
-    return text, color, bg_color
-
+            time.sleep(2.0 / REFRESH_HZ)
