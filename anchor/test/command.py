@@ -37,7 +37,7 @@ usage = """
 '''
 global variables
 '''
-filename = "log/test.txt"
+filename = "test.txt"
 f = open(filename, "w")
 f.write(datetime.now().strftime("%m/%d/%Y, %H:%M:%S")+"\n")
 f.close()

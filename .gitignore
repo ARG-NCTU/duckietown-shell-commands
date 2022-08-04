@@ -3,8 +3,7 @@
 .updates-check
 .idea
 /lib
-
-log/
+test.txt
 
 tags
 tags.lock
