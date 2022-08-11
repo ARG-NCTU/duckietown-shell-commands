@@ -152,7 +152,7 @@ class AnchorListener:
                 except:
                     pass
         datastr = []
-        datastr.append("time "+datetime.now().strftime("%d:%H:%M:%S")+"\n")
+        datastr.append("time "+datetime.now().strftime("%d:%H:%M"))
         for anchor in anchors:
             for device_hostname in list(sorted(hostnames)):
                 if dp_dict[anchor]['rpi_1']['hostname'] == device_hostname:
@@ -206,4 +206,4 @@ class DTCommand(DTCommandAbs):
         while True:
             if dtslogger.level > logging.DEBUG:
                 listener.print()
-            time.sleep(2.0 / REFRESH_HZ)
+            time.sleep(60.0 / REFRESH_HZ)
