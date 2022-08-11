@@ -156,7 +156,7 @@ class AnchorListener:
             "boat heart beat"
         ]
         columns = list(map(lambda c: " %s " % c, columns))
-        header = ["ip"]  + columns + ["temperature", "health status"]
+        header = ["ip"]  + columns + ["temperature", "battery", "mmwave", "zed", "TVL"]
         data = []
 
         for anchor in anchors:
@@ -172,9 +172,12 @@ class AnchorListener:
                     row = (
                         [anchor, 
                         dp_dict[anchor]['rpi_1']['ip']]
-                        + statuses
-                        + xbee_status[anchor]
-                        + xbee_status[anchor]
+                        + statuses +
+                        [xbee_status[anchor][0],
+                         xbee_status[anchor][1],
+                         xbee_status[anchor][2],
+                         xbee_status[anchor][3],
+                        xbee_status[anchor][4]]
                     )
                     data.append(row)
                     xbee_status[anchor] = 'connecting'
@@ -184,8 +187,11 @@ class AnchorListener:
                     dp_dict[anchor]['rpi_1']['ip'],
                     "disconnect",
                     "anchor disconnect",
-                    xbee_status[anchor],
-                    xbee_status[anchor]]
+                    xbee_status[anchor][0],
+                    xbee_status[anchor][1],
+                    xbee_status[anchor][2],
+                    xbee_status[anchor][3],
+                    xbee_status[anchor][4]]
                 )
                 data.append(row)        
         # clear terminal
@@ -245,7 +251,7 @@ def column_to_text_and_color(column, hostname, services, anchor):
         if xbee_status[anchor] == 'connecting':
             text, color, bg_color = xbee_status[anchor], "white", "red"
         else:
-            text, color, bg_color = xbee_status[anchor], "white", "green"
+            text, color, bg_color = 'alive', "white", "green"
     # ----------
     return text, color, bg_color
 
