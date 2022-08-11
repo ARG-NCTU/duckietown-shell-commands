@@ -41,6 +41,28 @@ dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.y
 dp_dict = get_ip.dp_load_config(dp_yaml_path)
 anchors = get_ip.dp_get_devices(dp_yaml_path, 'anchor*')
 boat_status = {'anchor1':'connecting', 'anchor2': 'connecting', 'anchor3': 'connecting', 'anchor4': 'connecting', 'anchor5': 'connecting', 'anchor6': 'connecting', 'anchor7': 'connecting','anchor8': 'connecting'}
+xbee_status = {"anchor1":[], "anchor2":[], "anchor3":[], "anchor4":[], "anchor5":[], "anchor6":[], "anchor7":[], "anchor8":[],}
+
+
+'''
+xbee info part
+'''
+def xbee_callback(message):
+    global xbee_status
+    #print(message)
+    name_and_status = message['data'].split('@')
+    xbee_status['anchor' + str(name_and_status[0])] = name_and_status[1].split(':')
+
+def get_xbee_status(ip,):
+    try:
+        client = roslibpy.Ros(host = ip, port = 9090)
+        client.run()
+        topic_name_xbee = "/anchor"+ ip[-2] +"/status"
+        topic_type_xbee = client.get_topic_type(topic_name_xbee)
+        listener_xbee = roslibpy.Topic(client, topic_name_xbee, topic_type_xbee, throttle_rate=100)
+        listener_xbee.subscribe(xbee_callback)
+    except:
+        print("cannot connect to Ros")
 
 
 '''
@@ -48,7 +70,7 @@ boat alive part
 '''
 def boat_callback(message):
     global boat_status
-    boat_status['anchor' + str(message['data'][4])] = message['data']
+    boat_status['anchor' + str(message['data'][0])] = message['data']
 
 def get_boat_status(ip,):
     try:
@@ -65,6 +87,7 @@ roslibpy threading part
 threads = []
 for anchor in anchors:
     threads.append(threading.Thread(target = get_boat_status, args = (dp_dict[anchor]['rpi_1']['ip'],)))
+    threads.append(threading.Thread(target = get_xbee_status, args = (dp_dict[anchor]['rpi_1']['ip'],)))
 for i in range(len(threads)):
     threads[i].start()
 
@@ -152,7 +175,7 @@ class AnchorListener:
             "boat heart beat"
         ]
         columns = list(map(lambda c: " %s " % c, columns))
-        header = ["ip"]  + columns
+        header = ["ip"]  + columns + ["health status"]
         data = []
 
         for anchor in anchors:
@@ -169,6 +192,7 @@ class AnchorListener:
                         [anchor, 
                         dp_dict[anchor]['rpi_1']['ip']]
                         + statuses
+                        + xbee_status[anchor]
                     )
                     data.append(row)
                     if boat_status[anchor][-5:] == 'alive': #main code 1Hz alive -> dead, thread 10Hz dead -> alive, if boat is dead, thread will dead
@@ -178,7 +202,8 @@ class AnchorListener:
                     [anchor, 
                     dp_dict[anchor]['rpi_1']['ip'],
                     "disconnect",
-                    "anchor disconnect"]
+                    "anchor disconnect",
+                    xbee_status[anchor]]
                 )
                 data.append(row)        
         # clear terminal
