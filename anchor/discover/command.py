@@ -40,8 +40,7 @@ global variables
 dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
 dp_dict = get_ip.dp_load_config(dp_yaml_path)
 anchors = get_ip.dp_get_devices(dp_yaml_path, 'anchor*')
-boat_status = {'anchor1':'connecting', 'anchor2': 'connecting', 'anchor3': 'connecting', 'anchor4': 'connecting', 'anchor5': 'connecting', 'anchor6': 'connecting', 'anchor7': 'connecting','anchor8': 'connecting'}
-xbee_status = {"anchor1":[], "anchor2":[], "anchor3":[], "anchor4":[], "anchor5":[], "anchor6":[], "anchor7":[], "anchor8":[],}
+xbee_status = {'anchor1':'connecting', 'anchor2': 'connecting', 'anchor3': 'connecting', 'anchor4': 'connecting', 'anchor5': 'connecting', 'anchor6': 'connecting', 'anchor7': 'connecting','anchor8': 'connecting'}
 
 
 '''
@@ -64,29 +63,11 @@ def get_xbee_status(ip,):
     except:
         print("cannot connect to Ros")
 
-
-'''
-boat alive part
-'''
-def boat_callback(message):
-    global boat_status
-    boat_status['anchor' + str(message['data'][0])] = message['data']
-
-def get_boat_status(ip,):
-    try:
-        boat  =  websocket.ros_socket(ip)
-
-        topic_name_boat = "/anchor"+ ip[-2] +"/status"
-        boat.subscriber(topic_name_boat, boat_callback, 100)
-    except:
-       pass
-
 '''
 roslibpy threading part
 '''
 threads = []
 for anchor in anchors:
-    threads.append(threading.Thread(target = get_boat_status, args = (dp_dict[anchor]['rpi_1']['ip'],)))
     threads.append(threading.Thread(target = get_xbee_status, args = (dp_dict[anchor]['rpi_1']['ip'],)))
 for i in range(len(threads)):
     threads[i].start()
@@ -175,7 +156,7 @@ class AnchorListener:
             "boat heart beat"
         ]
         columns = list(map(lambda c: " %s " % c, columns))
-        header = ["ip"]  + columns + ["health status"]
+        header = ["ip"]  + columns + ["temperature", "health status"]
         data = []
 
         for anchor in anchors:
@@ -193,16 +174,17 @@ class AnchorListener:
                         dp_dict[anchor]['rpi_1']['ip']]
                         + statuses
                         + xbee_status[anchor]
+                        + xbee_status[anchor]
                     )
                     data.append(row)
-                    if boat_status[anchor][-5:] == 'alive': #main code 1Hz alive -> dead, thread 10Hz dead -> alive, if boat is dead, thread will dead
-                        boat_status[anchor] = 'connecting'
+                    xbee_status[anchor] = 'connecting'
             if gotit == False:
                 row = (
                     [anchor, 
                     dp_dict[anchor]['rpi_1']['ip'],
                     "disconnect",
                     "anchor disconnect",
+                    xbee_status[anchor],
                     xbee_status[anchor]]
                 )
                 data.append(row)        
@@ -260,10 +242,10 @@ def column_to_text_and_color(column, hostname, services, anchor):
         if hostname in services["DT::BOOTING"]:
             text, color, bg_color = "Booting", "white", "yellow"
     if column == "boat heart beat":
-        if boat_status[anchor] == 'connecting':
-            text, color, bg_color = boat_status[anchor], "white", "red"
+        if xbee_status[anchor] == 'connecting':
+            text, color, bg_color = xbee_status[anchor], "white", "red"
         else:
-            text, color, bg_color = boat_status[anchor], "white", "green"
+            text, color, bg_color = xbee_status[anchor], "white", "green"
     # ----------
     return text, color, bg_color
 
