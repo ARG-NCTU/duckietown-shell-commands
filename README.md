@@ -32,7 +32,8 @@ Follow the installation instruction [here](https://docs.duckietown.org/daffy/opm
 Change to our forked repo
 
 ```
-$ pip3 install -U duckietown-shell
+$ pip3 install --no-cache-dir --user --upgrade duckietown-shell
+
 $ dts --set-version daffy
 $ dts
 ```
