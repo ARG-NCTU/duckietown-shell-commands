@@ -64,7 +64,7 @@ docker run \
     -v "/home/$USER/.dt-shell/commands-multi/daffy/Docker/environment.sh:/home/arg/environment.sh" \
     -v "/home/$USER/.dt-shell/commands-multi/daffy/Docker/set_arg_dts.sh:/home/arg/set_arg_dts.sh" \
     -w "/home/arg" \
-    --name argtool \
+    --name argdts \
     --network host \
     --privileged \
     --security-opt seccomp=unconfined \
