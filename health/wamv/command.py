@@ -17,7 +17,7 @@ from dt_shell import DTCommandAbs, dtslogger
 from utils.table_utils import fill_cell, format_matrix
 
 import threading
-import roslibpy
+#import roslibpy
 #from utils.duckiepond_utils import find_duckiepond_devices_yaml, dp_print_boats
 
 REFRESH_HZ = 1.0
@@ -38,7 +38,30 @@ usage = """
 global variables
 '''
 sensortowers = ['sensortower1', 'sensortower2', 'sensortower3']
+sensortower_status = {'sensortower1': ['-1', '-1'], 'sensortower2': ['-1', '-1'], 'sensortower3': ['-1', '-1']}
+threads = []
 
+'''
+sensortower get status part
+'''
+def sensor_callback(message):
+    name_id = message['data'].split('@')[0]
+    sensortower_status[name_id] =  message['data'].split('@')[1].split(':')
+
+def sensor_check(ip, sensor_tower_id):
+    try:
+        socket_sensor = websocket.ros_socket(ip, 9090)
+        socket_sensor.subscriber('/health/' + sensor_tower_id, sensor_callback, 100)
+    except:
+        print('ERROR of connecting')
+
+'''
+roslibpy threading part
+'''
+for sensortower  in sensortowers:
+    threads.append(threading.Thread(target = sensor_check, args = ('140.113.148.77', sensortower,)))
+for i in range(len(threads)):
+    threads[i].start()
 
 
 
@@ -117,6 +140,7 @@ class WamvListener:
         # print table
         print(datetime.now())
         print("ARG define command : dts health wamv")
+        print()
         print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
 
 
@@ -154,19 +178,19 @@ class DTCommand(DTCommandAbs):
                 listener.print()
             time.sleep(1.0 / REFRESH_HZ)
 
-def column_to_text_and_color(column, hostname, services, anchor):
+def column_to_text_and_color(column, hostname, services, sensortower):
     column = column.strip()
     text, color, bg_color = "ND", "white", "grey"
     #  -> Status
     if column == "zed":
-        if False:
+        if sensortower_status[sensortower][0] == '0':
             text, color, bg_color = 'bad', "white", "red"
-        else:
+        elif sensortower_status[sensortower][0] == '1':
             text, color, bg_color = 'alive', "white", "green"
     if column == "mmwave":
-        if False:
+        if sensortower_status[sensortower][1] == '0' :
             text, color, bg_color = 'bad', "white", "red"
-        else:
+        elif sensortower_status[sensortower][1] == '4':
             text, color, bg_color = 'alive', "white", "green"
     # ----------
     return text, color, bg_color
