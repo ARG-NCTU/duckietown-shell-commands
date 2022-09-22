@@ -37,48 +37,16 @@ usage = """
 '''
 global variables
 '''
-dp_yaml_path = get_ip.find_duckiepond_devices_yaml("duckiepond-devices-machine.yaml")
-dp_dict = get_ip.dp_load_config(dp_yaml_path)
-anchors = get_ip.dp_get_devices(dp_yaml_path, 'anchor*')
-xbee_status = {'anchor1':'connecting', 'anchor2': 'connecting', 'anchor3': 'connecting', 'anchor4': 'connecting', 'anchor5': 'connecting', 'anchor6': 'connecting', 'anchor7': 'connecting','anchor8': 'connecting'}
+sensortowers = ['sensortower1', 'sensortower2', 'sensortower3']
 
 
-'''
-xbee info part
-'''
-def xbee_callback(message):
-    global xbee_status
-    #print(message)
-    name_and_status = message['data'].split('@')
-    xbee_status['anchor' + str(name_and_status[0])] = name_and_status[1].split(':')
-
-def get_xbee_status(ip,):
-    try:
-        client = roslibpy.Ros(host = ip, port = 9090)
-        client.run()
-        topic_name_xbee = "/anchor"+ ip[-2] +"/status"
-        topic_type_xbee = client.get_topic_type(topic_name_xbee)
-        listener_xbee = roslibpy.Topic(client, topic_name_xbee, topic_type_xbee, throttle_rate=100)
-        listener_xbee.subscribe(xbee_callback)
-    except:
-        print("cannot connect to Ros")
-
-'''
-roslibpy threading part
-'''
-threads = []
-for anchor in anchors:
-    threads.append(threading.Thread(target = get_xbee_status, args = (dp_dict[anchor]['rpi_1']['ip'],)))
-for i in range(len(threads)):
-    threads[i].start()
 
 
 '''
 dts part
 
 '''
-
-class AnchorListener:
+class WamvListener:
     services = defaultdict(dict)
     supported_services = [
         "DT::ONLINE",
@@ -128,80 +96,29 @@ class AnchorListener:
     def print(self):
         # get all discovered hostnames
         hostnames: Set[str] = set()
-
-        for service in self.supported_services:
-            hostnames_for_service: List[str] = list(self.services[service])
-            hostnames.update(hostnames_for_service)
-        # create hostname -> robot_type map
-        hostname_to_type = defaultdict(lambda: "ND")
-        for device_hostname in self.services["DT::ROBOT_TYPE"]:
-            dev = self.services["DT::ROBOT_TYPE"][device_hostname]
-            if len(dev["txt"]) and "type" in dev["txt"]:
-                try:
-                    hostname_to_type[device_hostname] = dev["txt"]["type"]
-                except:  # XXX: complain a bit
-                    pass
-        # create hostname -> robot_configuration map
-        hostname_to_config = defaultdict(lambda: "ND")
-        for device_hostname in self.services["DT::ROBOT_CONFIGURATION"]:
-            dev = self.services["DT::ROBOT_CONFIGURATION"][device_hostname]
-            if len(dev["txt"]) and "configuration" in dev["txt"]:
-                try:
-                    hostname_to_config[device_hostname] = dev["txt"]["configuration"]
-                except:
-                    pass
         # prepare table
         columns = [
-            "anchor",
-            "boat heart beat"
+            "zed",
+            "mmwave"
         ]
         columns = list(map(lambda c: " %s " % c, columns))
-        header = ["ip"]  + columns + ["temperature", "battery", "mmwave", "zed", "TVL"]
+        header = columns
         data = []
-
-        for anchor in anchors:
-            gotit = False
-            for device_hostname in list(sorted(hostnames)):
-                if dp_dict[anchor]['rpi_1']['hostname'] == device_hostname:
-                    statuses = []
-                    for column in columns:
-                        text, color, bg_color = column_to_text_and_color(column, device_hostname, self.services, anchor)
-                        column_txt = fill_cell(text, len(column), color, bg_color)
-                        statuses.append(column_txt)
-                    gotit = True
-                    row = (
-                        [anchor, 
-                        dp_dict[anchor]['rpi_1']['ip']]
-                        + statuses +
-                        [xbee_status[anchor][0],
-                         xbee_status[anchor][1],
-                         xbee_status[anchor][2],
-                         xbee_status[anchor][3],
-                        xbee_status[anchor][4]]
-                    )
-                    data.append(row)
-                    xbee_status[anchor] = 'connecting'
-            if gotit == False:
-                row = (
-                    [anchor, 
-                    dp_dict[anchor]['rpi_1']['ip'],
-                    "disconnect",
-                    "anchor disconnect",
-                    xbee_status[anchor][0],
-                    xbee_status[anchor][1],
-                    xbee_status[anchor][2],
-                    xbee_status[anchor][3],
-                    xbee_status[anchor][4]]
-                )
-                data.append(row)        
+        for sensortower in sensortowers:
+            statuses = []
+            for column in columns:
+                text, color, bg_color = column_to_text_and_color(column, 'hostname', self.services, sensortower)
+                column_txt = fill_cell(text, len(column), color, bg_color)
+                statuses.append(column_txt)
+            row = ([sensortower] + statuses )
+            data.append(row)
         # clear terminal
         os.system("cls" if os.name == "nt" else "clear")
         # print table
         print(datetime.now())
-        print("ARG define command : dts anchor discover")
-        #print("Config : {}\n".format(dp_yaml_path))
-        #print("NOTE: Only devices flashed using duckietown-shell-commands v4.1.0+ are supported.\n")
+        print("ARG define command : dts health wamv")
         print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
+
 
 class DTCommand(DTCommandAbs):
     @staticmethod
@@ -229,7 +146,7 @@ class DTCommand(DTCommandAbs):
         parsed = parser.parse_args(args)
         zeroconf = Zeroconf()
         # perform discover
-        listener = AnchorListener(args=parsed)
+        listener = WamvListener(args=parsed)
         ServiceBrowser(zeroconf, "_duckietown._tcp.local.", listener)
 
         while True:
@@ -237,21 +154,19 @@ class DTCommand(DTCommandAbs):
                 listener.print()
             time.sleep(1.0 / REFRESH_HZ)
 
-
 def column_to_text_and_color(column, hostname, services, anchor):
     column = column.strip()
     text, color, bg_color = "ND", "white", "grey"
     #  -> Status
-    if column == "anchor":
-        if hostname in services["DT::PRESENCE"]:
-            text, color, bg_color = "Ready", "white", "green"
-        if hostname in services["DT::BOOTING"]:
-            text, color, bg_color = "Booting", "white", "yellow"
-    if column == "boat heart beat":
-        if xbee_status[anchor] == 'connecting':
-            text, color, bg_color = xbee_status[anchor], "white", "red"
+    if column == "zed":
+        if False:
+            text, color, bg_color = 'bad', "white", "red"
+        else:
+            text, color, bg_color = 'alive', "white", "green"
+    if column == "mmwave":
+        if False:
+            text, color, bg_color = 'bad', "white", "red"
         else:
             text, color, bg_color = 'alive', "white", "green"
     # ----------
     return text, color, bg_color
-
