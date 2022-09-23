@@ -187,10 +187,12 @@ def column_to_text_and_color(column, hostname, services, sensortower):
             text, color, bg_color = 'bad', "white", "red"
         elif sensortower_status[sensortower][0] == '1':
             text, color, bg_color = 'alive', "white", "green"
+        sensortower_status[sensortower][0] = '-1'
     if column == "mmwave":
         if sensortower_status[sensortower][1] == '0' :
             text, color, bg_color = 'bad', "white", "red"
         elif sensortower_status[sensortower][1] == '4':
             text, color, bg_color = 'alive', "white", "green"
+        sensortower_status[sensortower][1] = '-1'
     # ----------
     return text, color, bg_color
