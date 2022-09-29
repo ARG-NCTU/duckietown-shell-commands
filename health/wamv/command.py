@@ -37,8 +37,8 @@ usage = """
 '''
 global variables
 '''
-sensortowers = ['sensortower1', 'sensortower2', 'sensortower3']
-sensortower_status = {'sensortower1': ['-1', '-1', '-1'], 'sensortower2': ['-1', '-1', '-1'], 'sensortower3': ['-1', '-1', '-1']}
+sensortowers = ['sensortower1', 'sensortower2', 'sensortower3', 'sensortower4']
+sensortower_status = {'sensortower1': ['-1', '-1', '-1'], 'sensortower2': ['-1', '-1', '-1'], 'sensortower3': ['-1', '-1', '-1'], 'sensortower4': ['-1', '-1', '-1']}
 threads = []
 
 '''
@@ -198,7 +198,7 @@ def column_to_text_and_color(column, hostname, services, sensortower):
     if column == "Lidar":
         if sensortower_status[sensortower][2] == '0' :
             text, color, bg_color = 'bad', "white", "red"
-        elif sensortower_status[sensortower][2] == '4':
+        elif sensortower_status[sensortower][2] == '1':
             text, color, bg_color = 'alive', "white", "green"
         sensortower_status[sensortower][2] = '-1'
     # ----------
