@@ -59,7 +59,7 @@ def sensor_check(ip, sensor_tower_id):
 roslibpy threading part
 '''
 for sensortower  in sensortowers:
-    threads.append(threading.Thread(target = sensor_check, args = ('140.113.148.77', sensortower,)))
+    threads.append(threading.Thread(target = sensor_check, args = ('192.168.0.30', sensortower,)))
 for i in range(len(threads)):
     threads[i].start()
 
