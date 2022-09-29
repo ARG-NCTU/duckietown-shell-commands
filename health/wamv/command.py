@@ -38,7 +38,7 @@ usage = """
 global variables
 '''
 sensortowers = ['sensortower1', 'sensortower2', 'sensortower3']
-sensortower_status = {'sensortower1': ['-1', '-1'], 'sensortower2': ['-1', '-1'], 'sensortower3': ['-1', '-1']}
+sensortower_status = {'sensortower1': ['-1', '-1', '-1'], 'sensortower2': ['-1', '-1', '-1'], 'sensortower3': ['-1', '-1', '-1']}
 threads = []
 
 '''
@@ -122,7 +122,8 @@ class WamvListener:
         # prepare table
         columns = [
             "zed",
-            "mmwave"
+            "mmwave",
+            "Lidar"
         ]
         columns = list(map(lambda c: " %s " % c, columns))
         header = columns
@@ -194,5 +195,11 @@ def column_to_text_and_color(column, hostname, services, sensortower):
         elif sensortower_status[sensortower][1] == '4':
             text, color, bg_color = 'alive', "white", "green"
         sensortower_status[sensortower][1] = '-1'
+    if column == "Lidar":
+        if sensortower_status[sensortower][2] == '0' :
+            text, color, bg_color = 'bad', "white", "red"
+        elif sensortower_status[sensortower][2] == '4':
+            text, color, bg_color = 'alive', "white", "green"
+        sensortower_status[sensortower][2] = '-1'
     # ----------
     return text, color, bg_color
