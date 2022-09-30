@@ -37,8 +37,8 @@ usage = """
 '''
 global variables
 '''
-sensortowers = ['sensortower1', 'sensortower2', 'sensortower3', 'sensortower4']
-sensortower_status = {'sensortower1': ['-1', '-1', '-1'], 'sensortower2': ['-1', '-1', '-1'], 'sensortower3': ['-1', '-1', '-1'], 'sensortower4': ['-1', '-1', '-1']}
+sensortowers = ['sensortower1', 'sensortower2', 'sensortower3', 'lidartower']
+sensortower_status = {'sensortower1': ['-1', '-1', '-1'], 'sensortower2': ['-1', '-1', '-1'], 'sensortower3': ['-1', '-1', '-1'], 'lidartower': ['-1', '-1', '-1']}
 threads = []
 
 '''
