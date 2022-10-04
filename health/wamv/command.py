@@ -37,8 +37,8 @@ usage = """
 '''
 global variables
 '''
-sensortowers = ['sensortower1', 'sensortower2', 'sensortower3', 'lidartower']
-sensortower_status = {'sensortower1': ['-1', '-1', '-1'], 'sensortower2': ['-1', '-1', '-1'], 'sensortower3': ['-1', '-1', '-1'], 'lidartower': ['-1', '-1', '-1']}
+sensortowers = ['zedtower_left', 'zedtower_mid', 'zedtower_right', 'lidartower']
+sensortower_status = {'zedtower_left': ['-1', '-1', '-1'], 'zedtower_mid': ['-1', '-1', '-1'], 'zedtower_right': ['-1', '-1', '-1'], 'lidartower': ['-1', '-1', '-1']}
 threads = []
 
 '''
@@ -59,7 +59,7 @@ def sensor_check(ip, sensor_tower_id):
 roslibpy threading part
 '''
 for sensortower  in sensortowers:
-    threads.append(threading.Thread(target = sensor_check, args = ('192.168.0.30', sensortower,)))
+    threads.append(threading.Thread(target = sensor_check, args = ('192.168.0.77', sensortower,)))
 for i in range(len(threads)):
     threads[i].start()
 
