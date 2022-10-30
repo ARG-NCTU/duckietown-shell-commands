@@ -63,7 +63,7 @@ def sensor_check(ip, sensor_tower_id):
 roslibpy threading part
 '''
 for sensortower  in sensortowers:
-    threads.append(threading.Thread(target = sensor_check, args = ('192.168.0.77', sensortower,)))
+    threads.append(threading.Thread(target = sensor_check, args = ('127.0.0.1', sensortower,)))
 for i in range(len(threads)):
     threads[i].start()
 
@@ -158,21 +158,15 @@ class WamvListener:
         draw.text(500, 100, header[1])
         draw.text(700, 100, header[2])
         draw.text(100, 200, sensortowers[0])
-        draw.text(300, 200, sensortower_status['zedtower_left'][0])
-        draw.text(500, 200, sensortower_status['zedtower_left'][1])
-        draw.text(700, 200, sensortower_status['zedtower_left'][2])
         draw.text(100, 300, sensortowers[1])
-        draw.text(300, 300, sensortower_status['zedtower_mid'][0])
-        draw.text(500, 300, sensortower_status['zedtower_mid'][1])
-        draw.text(700, 300, sensortower_status['zedtower_mid'][2])
         draw.text(100, 400, sensortowers[2])
-        draw.text(300, 400, sensortower_status['zedtower_right'][0])
-        draw.text(500, 400, sensortower_status['zedtower_right'][1])
-        draw.text(700, 400, sensortower_status['zedtower_right'][2])
         draw.text(100, 500, sensortowers[3])
-        draw.text(300, 500, sensortower_status['lidartower'][0])
-        draw.text(500, 500, sensortower_status['lidartower'][1])
-        draw.text(700, 500, sensortower_status['lidartower'][2])
+        height = 200
+        for sensortower in sensortowers:
+            draw.text(300, height, sensortower_status[sensortower][0])
+            draw.text(500, height, sensortower_status[sensortower][1])
+            draw.text(700, height, sensortower_status[sensortower][2])
+            height = height+100
         draw(ny)
         ny.save(filename= 'text.jpg')
 
