@@ -1,6 +1,117 @@
-[![CircleCI](https://circleci.com/gh/duckietown/duckietown-shell-commands.svg?style=shield)](https://circleci.com/gh/duckietown/duckietown-shell-commands)
+# dts commands for duckiepond
+
+We could setup a few dts commands to setup a device in Duckiepond. This is supposed to run on the laptop on the base station.
+
+## Use Docker (suggested)
+
+This method works on Ubuntu or Mac.
+
+Note that we mount this repo to ~/.dt-shell/commands-multi/daffy, and mount your ~/.ssh so that you could use your ssh key in container.
+
+```
+source docker_run.sh
+source environment.sh
+dts
+```
+press ctrl+C to escape dts
+```
+source set_arg_dts.sh
+```
+
+Say Hello
+```
+dts boat hello
+```
+if you see hello then it works!!
+
+
+## Use Native Ubuntu 20.04
+
+Follow the installation instruction [here](https://docs.duckietown.org/daffy/opmanual_duckiebot/out/laptop_setup.html).
+
+Change to our forked repo
+
+```
+$ pip3 install --no-cache-dir --user --upgrade duckietown-shell
+
+$ dts --set-version daffy
+$ dts
+```
+press ctrl+C to escape dts
+```
+$ cd ~/.dt-shell/commands-multi/daffy/
+$ git remote -v
+$ git remote set-url origin git@github.com:ARG-NCTU/duckietown-shell-commands.git
+$ git pull
+$ pip3 install -U arg-robotics-tools
+```
+
+### duckie devices yaml
+
+Note that we have submodule duckiepond-devices [private repo](https://github.com/ARG-NCTU/duckiepond-devices).
+
+```
+$ cd ~/.dt-shell/commands-multi/daffy/
+$ git submodule init
+$ git submodule update
+```
+
+### when you need to update
+
+```
+$ cd ~/.dt-shell/commands-multi/daffy
+$ git pull
+$ cd duckiepond-devices
+$ git submodule init
+$ git submodule update
+```
+
+## dependency
+
+TODO: xbee, ros, etc dependencies
+
+TODO: Or it's even better to add Docker for this. 
+
+TODO: We could also test our nbdev lib here.
+
+
+## Checking System
+
+TODO: submodule the repo with device.yaml
+
+### Hostname, username, ssh key, 
+
+### Setup network properly (IP, virtual IP, etc)
+
+### Make a Duckietown Device
+
+
+## Developments and Deployments
+
+### Clone repo and build 
+
+### Environment variables for who I am
+
+### Any robot-specific topic name 
+
+### Docker autorun (Turnkey)
+
+## Tests (arg-veh-machine-test repo)
+
+### dts fleet discover
+
+### Test XBee comm (TODO modify repo)
+
+### Test starting up sensors (procman)
+
+
 
 -----------------------
+
+
+[![CircleCI](https://circleci.com/gh/duckietown/duckietown-shell-commands.svg?style=shield)](https://circleci.com/gh/duckietown/duckietown-shell-commands)
+
+
 
 TODO: this should get polished and updated. 
 

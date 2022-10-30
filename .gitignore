@@ -3,3 +3,7 @@
 .updates-check
 .idea
 /lib
+test.txt
+
+tags
+tags.lock

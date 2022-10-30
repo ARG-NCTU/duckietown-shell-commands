@@ -2,7 +2,6 @@ import re
 import math
 from termcolor import colored
 
-
 class Format(object):
     ALIGN_LEFT = "{:<{}}"
     CENTER = "{:^{}}"
@@ -62,3 +61,4 @@ def fill_cell(text, width, foreground=None, background=None, text_len=None, form
     if not foreground or not background:
         return s
     return colored(s, foreground, "on_" + background)
+
