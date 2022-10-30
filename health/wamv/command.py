@@ -20,6 +20,7 @@ import threading
 
 from wand.image import Image
 from wand.drawing import Drawing
+#import cv2
 #import roslibpy
 #from utils.duckiepond_utils import find_duckiepond_devices_yaml, dp_print_boats
 
@@ -146,13 +147,34 @@ class WamvListener:
         print("ARG define command : dts health wamv")
         print()
         print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
+        #im = cv2.imread('black.jpg', 1)
+        #font = cv2.FONT_HERSHEY_SIMPLEX
+        #cv2.putText(im, 'Christmas', (10,450), font, 3, (0, 255, 0), 2, cv2.LINE_AA)
+        #cv2.imwrite('text.jpg', im)
         ny = Image(filename ='black.jpg')
         draw = Drawing()
         draw.font_size = 20
-        draw.text(100, 100, format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "      \n", " | "))
+        draw.text(300, 100, header[0])
+        draw.text(500, 100, header[1])
+        draw.text(700, 100, header[2])
+        draw.text(100, 200, sensortowers[0])
+        draw.text(300, 200, sensortower_status['zedtower_left'][0])
+        draw.text(500, 200, sensortower_status['zedtower_left'][1])
+        draw.text(700, 200, sensortower_status['zedtower_left'][2])
+        draw.text(100, 300, sensortowers[1])
+        draw.text(300, 300, sensortower_status['zedtower_mid'][0])
+        draw.text(500, 300, sensortower_status['zedtower_mid'][1])
+        draw.text(700, 300, sensortower_status['zedtower_mid'][2])
+        draw.text(100, 400, sensortowers[2])
+        draw.text(300, 400, sensortower_status['zedtower_right'][0])
+        draw.text(500, 400, sensortower_status['zedtower_right'][1])
+        draw.text(700, 400, sensortower_status['zedtower_right'][2])
+        draw.text(100, 500, sensortowers[3])
+        draw.text(300, 500, sensortower_status['lidartower'][0])
+        draw.text(500, 500, sensortower_status['lidartower'][1])
+        draw.text(700, 500, sensortower_status['lidartower'][2])
         draw(ny)
         ny.save(filename= 'text.jpg')
-
 
 class DTCommand(DTCommandAbs):
     @staticmethod
