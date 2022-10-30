@@ -17,6 +17,9 @@ from dt_shell import DTCommandAbs, dtslogger
 from utils.table_utils import fill_cell, format_matrix
 
 import threading
+
+from wand.image import Image
+from wand.drawing import Drawing
 #import roslibpy
 #from utils.duckiepond_utils import find_duckiepond_devices_yaml, dp_print_boats
 
@@ -143,6 +146,12 @@ class WamvListener:
         print("ARG define command : dts health wamv")
         print()
         print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
+        ny = Image(filename ='black.jpg')
+        draw = Drawing()
+        draw.font_size = 20
+        draw.text(100, 100, format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "      \n", " | "))
+        draw(ny)
+        ny.save(filename= 'text.jpg')
 
 
 class DTCommand(DTCommandAbs):
