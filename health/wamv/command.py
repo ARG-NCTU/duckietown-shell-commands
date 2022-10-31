@@ -166,6 +166,9 @@ class WamvListener:
             draw.text(300, height, sensortower_status[sensortower][0])
             draw.text(500, height, sensortower_status[sensortower][1])
             draw.text(700, height, sensortower_status[sensortower][2])
+            sensortower_status[sensortower][0] = '-1'
+            sensortower_status[sensortower][1] = '-1'
+            sensortower_status[sensortower][2] = '-1'
             height = height+100
         draw(ny)
         ny.save(filename= '/home/arg/share_data/text.jpg')
@@ -213,18 +216,15 @@ def column_to_text_and_color(column, hostname, services, sensortower):
             text, color, bg_color = 'bad', "white", "red"
         elif sensortower_status[sensortower][0] == '1':
             text, color, bg_color = 'alive', "white", "green"
-        sensortower_status[sensortower][0] = '-1'
     if column == "mmwave":
         if sensortower_status[sensortower][1] == '0' :
             text, color, bg_color = 'bad', "white", "red"
         elif sensortower_status[sensortower][1] == '4':
             text, color, bg_color = 'alive', "white", "green"
-        sensortower_status[sensortower][1] = '-1'
     if column == "Lidar":
         if sensortower_status[sensortower][2] == '0' :
             text, color, bg_color = 'bad', "white", "red"
         elif sensortower_status[sensortower][2] == '1':
             text, color, bg_color = 'alive', "white", "green"
-        sensortower_status[sensortower][2] = '-1'
     # ----------
     return text, color, bg_color
