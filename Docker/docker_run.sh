@@ -60,6 +60,7 @@ docker run \
     -v "/etc/localtime:/etc/localtime:ro" \
     -v "/dev:/dev" \
     -v "/home/$USER/.ssh:/home/arg/.ssh" \
+    -v "/home/$USER/share_data:/home/arg/share_data" \
     -v "/var/run/docker.sock:/var/run/docker.sock" \
     -v "/home/$USER/.dt-shell/commands-multi/daffy/Docker/environment.sh:/home/arg/environment.sh" \
     -v "/home/$USER/.dt-shell/commands-multi/daffy/Docker/set_arg_dts.sh:/home/arg/set_arg_dts.sh" \
