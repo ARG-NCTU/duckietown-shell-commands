@@ -151,7 +151,7 @@ class WamvListener:
         #font = cv2.FONT_HERSHEY_SIMPLEX
         #cv2.putText(im, 'Christmas', (10,450), font, 3, (0, 255, 0), 2, cv2.LINE_AA)
         #cv2.imwrite('text.jpg', im)
-        ny = Image(filename ='black.jpg')
+        ny = Image(filename ='/home/arg/share_data/black.jpg')
         draw = Drawing()
         draw.font_size = 20
         draw.text(300, 100, header[0])
@@ -168,7 +168,7 @@ class WamvListener:
             draw.text(700, height, sensortower_status[sensortower][2])
             height = height+100
         draw(ny)
-        ny.save(filename= 'text.jpg')
+        ny.save(filename= '/home/arg/share_data/text.jpg')
 
 class DTCommand(DTCommandAbs):
     @staticmethod
