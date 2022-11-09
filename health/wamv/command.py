@@ -18,8 +18,9 @@ from utils.table_utils import fill_cell, format_matrix
 
 import threading
 
-from wand.image import Image
-from wand.drawing import Drawing
+#from wand.image import Image
+#from wand.drawing import Drawing
+
 #import cv2
 #import roslibpy
 #from utils.duckiepond_utils import find_duckiepond_devices_yaml, dp_print_boats
