@@ -147,6 +147,31 @@ class WamvListener:
         print("ARG define command : dts health wamv")
         print()
         print(format_matrix(header, data, "{:^{}}", "{:<{}}", "{:>{}}", "\n", " | "))
+        #im = cv2.imread('black.jpg', 1)
+        #font = cv2.FONT_HERSHEY_SIMPLEX
+        #cv2.putText(im, 'Christmas', (10,450), font, 3, (0, 255, 0), 2, cv2.LINE_AA)
+        #cv2.imwrite('text.jpg', im)
+        draw = Drawing()
+        draw.font_size = 20
+        draw.text(300, 100, header[0])
+        draw.text(500, 100, header[1])
+        draw.text(700, 100, header[2])
+        draw.text(100, 200, sensortowers[0])
+        draw.text(100, 300, sensortowers[1])
+        draw.text(100, 400, sensortowers[2])
+        draw.text(100, 500, sensortowers[3])
+        height = 200
+        for sensortower in sensortowers:
+            draw.text(300, height, sensortower_status[sensortower][0])
+            draw.text(500, height, sensortower_status[sensortower][1])
+            draw.text(700, height, sensortower_status[sensortower][2])
+            sensortower_status[sensortower][0] = '-1'
+            sensortower_status[sensortower][1] = '-1'
+            sensortower_status[sensortower][2] = '-1'
+            height = height+100
+        ny = Image(filename ='/home/arg/share_data/black.jpg')
+        draw(ny)
+        ny.save(filename= '/home/arg/share_data/text.jpg')
         
 class DTCommand(DTCommandAbs):
     @staticmethod
