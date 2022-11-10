@@ -42,8 +42,9 @@ usage = """
 '''
 global variables
 '''
-sensortowers = ['uav', 'wamv', 'zedtower_left', 'zedtower_mid', 'zedtower_right', 'lidartower']
-sensortower_status = {'uav': ['-1', '-1', '-1', '-1'], 'wamv': ['-1', '-1', '-1', '-1'], 'zedtower_left': ['-1', '-1', '-1', '-1'], 'zedtower_mid': ['-1', '-1', '-1', '-1'], 'zedtower_right': ['-1', '-1', '-1', '-1'], 'lidartower': ['-1', '-1', '-1', '-1']}
+sensortowers = ['uav', 'wamv', '_lidartower', '_zedtower_left', '_zedtower_mid', '_zedtower_right']
+#columns = ["H.B.","ZEDm","D435","LIDAR","mmWave","GPS","gripper"]
+sensortower_status = {'uav': ['-1', '-1', '-1', '-1', '-1', '-1', '-1'], 'wamv': ['-1', '-1', '-1', '-1', '-1', '-1', '-1'], '_lidartower': ['-1', '-1', '-1', '-1', '-1', '-1', '-1'], '_zedtower_left': ['-1', '-1', '-1', '-1', '-1', '-1', '-1'], '_zedtower_mid': ['-1', '-1', '-1', '-1', '-1', '-1', '-1'], '_zedtower_right': ['-1', '-1', '-1', '-1', '-1', '-1', '-1']}
 threads = []
 
 '''
@@ -127,10 +128,13 @@ class WamvListener:
         hostnames: Set[str] = set()
         # prepare table
         columns = [
-            "unit",
-            "camera",
-            "mmwave",
-            "Lidar"
+            "H.B.",
+            "ZEDm",
+            "D435",
+            "LIDAR",
+            "mmWave",
+            "GPS",
+            "gripper"
         ]
         columns = list(map(lambda c: " %s " % c, columns))
         header = columns
@@ -189,25 +193,40 @@ def column_to_text_and_color(column, hostname, services, sensortower):
     column = column.strip()
     text, color, bg_color = "try", "white", "red"
     #  -> Status
-    if column == "unit":
+    if column == "H.B.":
         if sensortower_status[sensortower][0] == '0':
             text, color, bg_color = 'no', "white", "grey"
         elif sensortower_status[sensortower][0] == '1':
             text, color, bg_color = 'alive', "white", "green"
-    if column == "camera":
+    if column == "ZEDm":
         if sensortower_status[sensortower][1] == '0':
             text, color, bg_color = 'no', "white", "grey"
         elif sensortower_status[sensortower][1] == '1':
             text, color, bg_color = 'alive', "white", "green"
-    if column == "mmwave":
+    if column == "D435":
         if sensortower_status[sensortower][2] == '0' :
             text, color, bg_color = 'no', "white", "grey"
-        elif sensortower_status[sensortower][2] == '4':
+        elif sensortower_status[sensortower][2] == '1':
             text, color, bg_color = 'alive', "white", "green"
-    if column == "Lidar":
+    if column == "LIDAR":
         if sensortower_status[sensortower][3] == '0' :
             text, color, bg_color = 'no', "white", "grey"
         elif sensortower_status[sensortower][3] == '1':
+            text, color, bg_color = 'alive', "white", "green"
+    if column == "mmWave":
+        if sensortower_status[sensortower][4] == '0' :
+            text, color, bg_color = 'no', "white", "grey"
+        elif sensortower_status[sensortower][4] == '4':
+            text, color, bg_color = 'alive', "white", "green"
+    if column == "GPS":
+        if sensortower_status[sensortower][5] == '0' :
+            text, color, bg_color = 'no', "white", "grey"
+        elif sensortower_status[sensortower][5] == '1':
+            text, color, bg_color = 'alive', "white", "green"
+    if column == "gripper":
+        if sensortower_status[sensortower][6] == '0' :
+            text, color, bg_color = 'no', "white", "grey"
+        elif sensortower_status[sensortower][6] == '1':
             text, color, bg_color = 'alive', "white", "green"
     # ----------
     return text, color, bg_color
